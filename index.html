@@ -5,94 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ร้านขายขนม Hay Day</title>
     <style>
-        body { font-family: 'Tahoma', sans-serif; background-color: #f4ece1; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #5c3d2e; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f5539; font-size: 14px; margin-bottom: 20px; }
+        body { font-family: 'Tahoma', sans-serif; background-color: #f4ece1; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #5c3d2e; margin-top: 0; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f5539; font-size: 13px; margin-bottom: 20px; }
+        
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        
+        /* สไตล์ส่วนกล่องหยิบใส่ตะกร้า */
+        .add-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-add { background-color: #ff9800; color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* สไตล์ตารางตะกร้าสินค้า */
+        .cart-section { border-top: 2px dashed #d7ccc8; padding-top: 15px; margin-top: 15px; }
+        .cart-title { font-weight: bold; font-size: 16px; color: #5c3d2e; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-list { list-style: none; padding: 0; margin: 0 0 15px 0; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .btn-del { background-color: #e53935; color: white; border: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 12px; margin-left: 10px; }
+        
+        /* กล่องแสดงราคารวม */
         .price-box { background-color: #e8f5e9; border: 1px solid #a5d6a7; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 15px; }
-        .price-title { font-size: 14px; color: #2e7d32; }
+        .price-title { font-size: 13px; color: #2e7d32; }
         .price-amount { font-size: 22px; font-weight: bold; color: #1b5e20; }
-        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
-        button:disabled { background-color: #ccc; }
+        
+        .btn-submit { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-submit:disabled { background-color: #ccc; }
         .note { font-size: 12px; color: #d32f2f; margin-top: 4px; }
+        
+        /* สไตล์กล่องสรุปออเดอร์สำหรับคัดลอก */
+        .modal { display: none; background: #fff8e1; border: 2px dashed #ffa000; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .modal h3 { color: #e65100; margin-top: 0; text-align: center; }
+        .summary-text { background: #fff; padding: 10px; border: 1px solid #ffe082; border-radius: 6px; font-family: monospace; white-space: pre-wrap; word-break: break-all; margin-bottom: 10px; font-size: 13px; }
+        .copy-btn { background-color: #ff9800; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>🌾 ร้านสั่งขนม Hay Day 🍞</h2>
-    <div class="subtitle">ขั้นต่ำ 10 ชิ้น (2 บาท) / 100 ชิ้น (12 บาท)</div>
+    <div class="subtitle">ขั้นต่ำ 10 ชิ้นต่อรายการ (10 ชิ้น = 2 บาท / 100 ชิ้น = 12 บาท)</div>
 
     <form id="orderForm">
-        <div class="form-group">
-            <label>ชื่อผู้สั่ง / ชื่อฟาร์ม:</label>
-            <input type="text" id="name" required placeholder="เช่น ฟาร์มไก่ชน">
-        </div>
         <div class="form-group">
             <label>Tag ในเกม (#):</label>
             <input type="text" id="tag" required placeholder="#XXXXXX">
         </div>
-        <div class="form-group">
-            <label>เลือกชนิดขนม:</label>
-            <select id="item">
-                <option value="ขนมปัง">ขนมปัง</option>
-                <option value="เค้กช็อกโกแลต">เค้กช็อกโกแลต</option>
-                <option value="คุกกี้">คุกกี้</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>จำนวนที่ต้องการสั่ง (ชิ้น):</label>
-            <input type="number" id="quantity" min="10" value="10" required oninput="calculatePrice()">
-            <div class="note">* ขั้นต่ำ 10 ชิ้น</div>
+
+        <!-- กล่องเลือกสินค้าลงตะกร้า -->
+        <div class="add-box">
+            <div class="form-group">
+                <label>เลือกชนิดขนม:</label>
+                <select id="itemSelect">
+                    <option value="ขนมปัง">ขนมปัง</option>
+                    <option value="เค้กช็อกโกแลต">เค้กช็อกโกแลต</option>
+                    <option value="คุกกี้">คุกกี้</option>
+                    <option value="พายแอปเปิ้ล">พายแอปเปิ้ล</option>
+                    <option value="โดนัท">โดนัท</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>จำนวนที่ต้องการสั่ง (ชิ้น):</label>
+                <input type="number" id="quantity" min="10" value="10">
+                <div class="note">* ขั้นต่ำ 10 ชิ้นต่อรายการ</div>
+            </div>
+            <button type="button" class="btn-add" onclick="addToCart()">🛒 + เพิ่มลงตะกร้า</button>
         </div>
 
-        <!-- กล่องแสดงราคาคำนวณอัตโนมัติ -->
+        <!-- รายการในตะกร้า -->
+        <div class="cart-section">
+            <div class="cart-title">
+                <span>🛒 ตะกร้าสินค้าของคุณ</span>
+                <span id="itemCount" style="font-size: 13px; color: #7f5539;">(0 รายการ)</span>
+            </div>
+            <ul class="cart-list" id="cartList">
+                <li style="color: #888; font-size: 13px; text-align: center; padding: 10px 0;">ยังไม่มีสินค้าในตะกร้า</li>
+            </ul>
+        </div>
+
+        <!-- กล่องแสดงราคารวมทั้งสิ้น -->
         <div class="price-box">
             <div class="price-title">ราคารวมทั้งสิ้น</div>
-            <div class="price-amount" id="displayTotal">2.00 บาท</div>
+            <div class="price-amount" id="displayTotal">0.00 บาท</div>
         </div>
 
-        <button type="submit" id="submitBtn">ส่งรายการสั่งซื้อ</button>
+        <button type="submit" class="btn-submit" id="submitBtn">ยืนยันและส่งคำสั่งซื้อ</button>
     </form>
+
+    <!-- ใบสรุปรายการหลังส่งสั่งซื้อ -->
+    <div id="summaryModal" class="modal">
+        <h3>สั่งซื้อสำเร็จ! 🎉</h3>
+        <p style="font-size: 13px; text-align: center; color: #555;">กดปุ่มก๊อปปี้ด้านล่าง แล้วส่งข้อความนี้ให้ผู้ขายในแชทได้เลยครับ</p>
+        <div class="summary-text" id="summaryText"></div>
+        <button type="button" class="copy-btn" onclick="copyOrder()">📋 คัดลอกข้อความออเดอร์</button>
+    </div>
 </div>
 
 <script>
-    // ⚠️ เอา URL Web App ที่ก๊อปปี้มาจาก Google Apps Script มาวางแทนที่ข้อความด้านล่างนี้
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec'; 
+    // ⚠️ เอา URL Web App ของคุณมาวางแทนที่บรรทัดนี้
+    const SCRIPT_URL = 'วาง_URL_WEB_APP_ตรงนี้'; 
 
-    let currentTotal = 2;
+    let cart = [];
 
-    // ฟังก์ชันคำนวณราคาอัตโนมัติ
-    function calculatePrice() {
+    // ฟังก์ชันคำนวณราคาแต่ละรายการ (10 ชิ้น = 2 บาท, เกิน 10 ชิ้นคิดชิ้นละ 0.12 บาท)
+    function calculateItemPrice(qty) {
+        if (qty <= 10) return 2.00;
+        return qty * 0.12;
+    }
+
+    // ฟังก์ชันเพิ่มสินค้าลงตะกร้า
+    function addToCart() {
+        const itemSelect = document.getElementById('itemSelect');
+        const itemName = itemSelect.value;
         const qtyInput = document.getElementById('quantity');
-        let qty = parseInt(qtyInput.value) || 0;
+        const qty = parseInt(qtyInput.value) || 0;
 
         if (qty < 10) {
-            document.getElementById('displayTotal').innerText = 'ขั้นต่ำ 10 ชิ้น';
-            currentTotal = 0;
+            alert('แต่ละรายการต้องสั่งอย่างน้อย 10 ชิ้นขึ้นไปครับ');
             return;
         }
 
-        // คำนวณตามสัดส่วน (100 ชิ้น = 12 บาท -> ชิ้นละ 0.12 บาท)
-        currentTotal = (qty * 0.12).toFixed(2);
-        
-        // ถ้าน้อยกว่าหรือเท่ากับ 10 ชิ้น ให้คิดขั้นต่ำ 2 บาท
-        if (qty <= 10) {
-            currentTotal = (2.00).toFixed(2);
+        const price = calculateItemPrice(qty);
+
+        // ตรวจสอบว่ามีสินค้านี้ในตะกร้าหรือยัง ถ้ามีให้บวกเพิ่มจำนวน
+        const existingIndex = cart.findIndex(item => item.name === itemName);
+        if (existingIndex > -1) {
+            cart[existingIndex].qty += qty;
+            cart[existingIndex].price = calculateItemPrice(cart[existingIndex].qty);
+        } else {
+            cart.push({ name: itemName, qty: qty, price: price });
         }
 
-        document.getElementById('displayTotal').innerText = currentTotal + ' บาท';
+        updateCartUI();
     }
 
+    // ฟังก์ชันลบสินค้าออกจากตะกร้า
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCartUI();
+    }
+
+    // ฟังก์ชันอัปเดตการแสดงผลตะกร้าสินค้าและราคารวม
+    function updateCartUI() {
+        const cartList = document.getElementById('cartList');
+        const itemCount = document.getElementById('itemCount');
+        const displayTotal = document.getElementById('displayTotal');
+
+        if (cart.length === 0) {
+            cartList.innerHTML = '<li style="color: #888; font-size: 13px; text-align: center; padding: 10px 0;">ยังไม่มีสินค้าในตะกร้า</li>';
+            itemCount.innerText = '(0 รายการ)';
+            displayTotal.innerText = '0.00 บาท';
+            return;
+        }
+
+        cartList.innerHTML = '';
+        let grandTotal = 0;
+
+        cart.forEach((item, index) => {
+            grandTotal += item.price;
+            const li = document.createElement('li');
+            li.className = 'cart-item';
+            li.innerHTML = `
+                <div>
+                    <strong>${item.name}</strong> (${item.qty} ชิ้น)
+                    <br><small style="color:#666;">${item.price.toFixed(2)} บาท</small>
+                </div>
+                <button type="button" class="btn-del" onclick="removeFromCart(${index})">ลบ</button>
+            `;
+            cartList.appendChild(li);
+        });
+
+        itemCount.innerText = `(${cart.length} รายการ)`;
+        displayTotal.innerText = grandTotal.toFixed(2) + ' บาท';
+    }
+
+    // ฟังก์ชันส่งออเดอร์
     document.getElementById('orderForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        const qty = parseInt(document.getElementById('quantity').value);
-        if (qty < 10) {
-            alert('กรุณาสั่งอย่างน้อย 10 ชิ้นขึ้นไปครับ');
+
+        if (cart.length === 0) {
+            alert('กรุณาเลือกสินค้าใส่ตะกร้าอย่างน้อย 1 รายการครับ');
             return;
         }
 
@@ -100,12 +193,19 @@
         btn.disabled = true;
         btn.innerText = 'กำลังส่งข้อมูล...';
 
-        const itemName = document.getElementById('item').value;
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const orderId = '#HD-' + randomNum;
+        const tag = document.getElementById('tag').value;
+
+        // รวมรายการสินค้าเป็นข้อความเดียว เช่น: ขนมปัง (50 ชิ้น), คุกกี้ (20 ชิ้น)
+        const itemsText = cart.map(i => `${i.name} x${i.qty}`).join(', ');
+        const grandTotal = cart.reduce((sum, i) => sum + i.price, 0).toFixed(2);
+
         const payload = {
-            name: document.getElementById('name').value,
-            tag: document.getElementById('tag').value,
-            items: `${itemName} (${qty} ชิ้น)`,
-            total: currentTotal
+            orderId: orderId,
+            tag: tag,
+            items: itemsText,
+            total: grandTotal
         };
 
         fetch(SCRIPT_URL, {
@@ -115,18 +215,47 @@
             body: JSON.stringify(payload)
         })
         .then(() => {
-            alert('ส่งคำสั่งซื้อเรียบร้อยแล้ว!');
+            // สร้างข้อความสรุปรายการแบบสวยงามให้ลูกค้าคัดลอก
+            let itemsDetail = cart.map(i => `  • ${i.name}: ${i.qty} ชิ้น (${i.price.toFixed(2)} บ.)`).join('\n');
+            
+            const summaryMessage = 
+`📦 ใบสั่งซื้อ Hay Day
+____________________
+🔹 เลขออเดอร์: ${orderId}
+🔹 Tag ในเกม: ${tag}
+🛒 รายการสินค้า:
+${itemsDetail}
+____________________
+💰 ราคารวมทั้งสิ้น: ${grandTotal} บาท
+____________________
+(บันทึกรายการเรียบร้อยแล้ว)`;
+
+            document.getElementById('summaryText').innerText = summaryMessage;
+            document.getElementById('summaryModal').style.display = 'block';
+
+            // ล้างข้อมูลหลังส่งเรียบร้อย
+            cart = [];
+            updateCartUI();
             document.getElementById('orderForm').reset();
-            calculatePrice();
             btn.disabled = false;
-            btn.innerText = 'ส่งรายการสั่งซื้อ';
+            btn.innerText = 'ยืนยันและส่งคำสั่งซื้อ';
         })
         .catch(error => {
             alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');
             btn.disabled = false;
-            btn.innerText = 'ส่งรายการสั่งซื้อ';
+            btn.innerText = 'ยืนยันและส่งคำสั่งซื้อ';
         });
     });
+
+    // ฟังก์ชันคัดลอกข้อความ
+    function copyOrder() {
+        const textToCopy = document.getElementById('summaryText').innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('คัดลอกข้อความเรียบร้อยแล้ว! นำไปวางส่งให้ผู้ขายในแชทได้เลยครับ');
+        }).catch(err => {
+            alert('ไม่สามารถคัดลอกอัตโนมัติได้ ให้กดค้างที่ข้อความแล้วเลือกคัดลอกนะครับ');
+        });
+    }
 </script>
 
 </body>
