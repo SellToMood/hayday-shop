@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ร้านขายขนม Hay Day</title>
+    <style>
+        body { font-family: 'Tahoma', sans-serif; background-color: #f4ece1; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #5c3d2e; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:disabled { background-color: #ccc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌾 ร้านสั่งขนม Hay Day 🍞</h2>
+    <form id="orderForm">
+        <div class="form-group">
+            <label>ชื่อผู้สั่ง / ชื่อฟาร์ม:</label>
+            <input type="text" id="name" required placeholder="เช่น ฟาร์มไก่ชน">
+        </div>
+        <div class="form-group">
+            <label>Tag ในเกม (#):</label>
+            <input type="text" id="tag" required placeholder="#XXXXXX">
+        </div>
+        <div class="form-group">
+            <label>เลือกขนม/สินค้า:</label>
+            <select id="item">
+                <option value="ขนมปัง (100)">ขนมปัง (100 ชิ้น)</option>
+                <option value="เค้กช็อกโกแลต (50)">เค้กช็อกโกแลต (50 ชิ้น)</option>
+                <option value="คุกกี้ (100)">คุกกี้ (100 ชิ้น)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>ราคารวม (บาท):</label>
+            <input type="number" id="total" required placeholder="ระบุราคา">
+        </div>
+        <button type="submit" id="submitBtn">ส่งรายการสั่งซื้อ</button>
+    </form>
+</div>
+
+<script>
+    // เอา URL Web App ที่ก๊อปปี้มาจาก Google Apps Script มาวางแทนที่ข้อความด้านล่างนี้
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec'; 
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = 'กำลังส่งข้อมูล...';
+
+        const payload = {
+            name: document.getElementById('name').value,
+            tag: document.getElementById('tag').value,
+            items: document.getElementById('item').value,
+            total: document.getElementById('total').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            alert('ส่งคำสั่งซื้อเรียบร้อยแล้ว!');
+            document.getElementById('orderForm').reset();
+            btn.disabled = false;
+            btn.innerText = 'ส่งรายการสั่งซื้อ';
+        })
+        .catch(error => {
+            alert('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');
+            btn.disabled = false;
+            btn.innerText = 'ส่งรายการสั่งซื้อ';
+        });
+    });
+</script>
+
+</body>
+</html>
