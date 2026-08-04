@@ -2,418 +2,115 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>สั่งซื้อผลผลิต - Hay Day Market</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>Hay Day Item Order System</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
-    body { background-color: #f8fafc; margin: 0; padding-bottom: 120px; color: #1e293b; }
-
-    /* Header & Filter Style */
-    .header-container { position: sticky; top: 0; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; padding: 15px 20px 10px 20px; }
-    .header-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
-    
-    .filter-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .search-input { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: #f8fafc; }
-    .level-input { width: 110px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; text-align: center; outline: none; background: #f8fafc; }
-
-    /* Category Tabs */
-    .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
-    .tab-btn { background: #f1f5f9; border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer; white-space: nowrap; }
-    .tab-btn.active { background: #22c55e; color: #ffffff; font-weight: 600; }
-
-    /* Container & Item Rows */
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-    .item-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .item-row { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .item-row.selected { border-color: #22c55e; background-color: #f0fdf4; }
-
-    .item-left { display: flex; align-items: center; gap: 12px; }
-    
-    /* CSS Sprite Configuration สำหรับ food.png (16 Columns x 12 Rows) */
-    .sprite-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
-      background-image: url('food.png');
-      background-size: 1600% 1200%; /* 16 คอลัมน์, 12 แถว */
+    /* กำหนดขนาดกริ็ดสไปรท์ (ตัวอย่าง 32x32px) */
+    .item-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
       background-repeat: no-repeat;
-      border: 1px solid #f1f5f9;
-      flex-shrink: 0;
     }
-
-    .item-info { display: flex; flex-direction: column; gap: 2px; }
-    .item-badge { display: inline-block; background: #fef3c7; color: #d97706; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; width: fit-content; }
-    .item-name { font-size: 15px; font-weight: 500; }
     
-    .item-right { text-align: right; }
-    .item-qty-status { font-size: 14px; font-weight: 600; color: #16a34a; }
-    .item-action-text { font-size: 12px; color: #94a3b8; }
-
-    /* Bottom Cart Bar */
-    .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 12px 20px; box-shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 100; }
-    .cart-inner { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .cart-count { font-size: 12px; color: #64748b; display: block; }
-    .cart-total { font-size: 18px; font-weight: bold; color: #16a34a; }
-    .btn-submit { background: #22c55e; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
-
-    /* Modal Popup */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-    .modal-content { background: #ffffff; width: 100%; max-width: 600px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 85vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .qty-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-    .preset-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; cursor: pointer; }
-    .custom-qty-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; outline: none; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-    .btn-confirm { flex: 1; background: #22c55e; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; }
-    .btn-clear { background: #fee2e2; color: #ef4444; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .btn-cancel { background: #f1f5f9; color: #475569; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-
-    .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 14px; max-height: 180px; overflow-y: auto; }
-    .summary-item { display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .summary-total { border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-weight: bold; color: #16a34a; display: flex; justify-content: space-between; }
+    /* สไตล์ Modal สำหรับยืนยันออเดอร์ */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      border-radius: 8px;
+    }
+    .modal.active { display: block; }
   </style>
 </head>
 <body>
 
-  <div class="header-container">
-    <div class="header-title">🌾 Hay Day Market</div>
-    <div class="filter-row">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อสินค้า..." oninput="renderItems()">
-      <input type="number" id="userLevel" class="level-input" placeholder="🎯 เลเวล" oninput="renderItems()">
-    </div>
-    <div class="category-tabs">
-      <button class="tab-btn active" onclick="switchCategory('bakery', this)">🍿 ขนม / อาหาร</button>
-      <button class="tab-btn" onclick="switchCategory('crops', this)">🌱 วัตถุดิบ / พืชผัก</button>
-    </div>
+  <h2>รายการสินค้า</h2>
+  <div id="item-list"></div>
+
+  <button onclick="openOrderModal()">สั่งออเดอร์</button>
+
+  <!-- Modal สำหรับยืนยันออเดอร์ และกรอก Tag -->
+  <div id="order-modal" class="modal">
+    <h3>ยืนยันการสั่งซื้อ</h3>
+    <label for="tag-input">ระบุ Tag / ชื่อผู้สั่ง:</label>
+    <input type="text" id="tag-input" placeholder="เช่น #TAG1234 หรือ Name" required>
+    <br><br>
+    <button onclick="confirmOrder()">ยืนยันสั่งออเดอร์</button>
+    <button onclick="closeOrderModal()">ยกเลิก</button>
   </div>
 
-  <div class="container">
-    <div class="item-list" id="itemList"></div>
-  </div>
+  <script>
+    // ตัวอย่าง itemsData สำหรับทดสอบ (ใช้สลับภาพตามหมวดหมู่)
+    const itemsData = [
+      { id: 1, name: "ไข่ไก่", level: 1, category: "crops", col: 0, row: 0 },
+      { id: 2, name: "ขนมปัง", level: 2, category: "bakery", col: 1, row: 0 },
+      { id: 3, name: "นมสด", level: 6, category: "crops", col: 2, row: 0 },
+      { id: 4, name: "ครีม", level: 6, category: "bakery", col: 3, row: 0 }
+    ];
 
-  <div class="cart-bar">
-    <div class="cart-inner">
-      <div>
-        <span class="cart-count" id="totalQtyText">เลือกไว้ 0 ชิ้น</span>
-        <span class="cart-total" id="totalPriceText">0.00 บาท</span>
-      </div>
-      <button class="btn-submit" id="submitBtn" onclick="submitOrder()">ส่งออเดอร์</button>
-    </div>
-  </div>
+    const ICON_SIZE = 32; // ขนาดของไอคอนแต่ละรูปใน Sprite Sheet (px)
 
-  <!-- Modal 1: เลือกจำนวน -->
-  <div class="modal-overlay" id="qtyModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalItemName" style="margin:0;">ชื่อสินค้า</h3>
-        <button onclick="closeModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
-      </div>
-      <div class="qty-presets">
-        <button class="preset-btn" onclick="selectPreset(10)">10</button>
-        <button class="preset-btn" onclick="selectPreset(20)">20</button>
-        <button class="preset-btn" onclick="selectPreset(50)">50</button>
-        <button class="preset-btn" onclick="selectPreset(100)">100</button>
-        <button class="preset-btn" onclick="selectPreset(200)">200</button>
-        <button class="preset-btn" onclick="selectPreset(500)">500</button>
-        <button class="preset-btn" onclick="selectPreset(800)">800</button>
-        <button class="preset-btn" onclick="selectPreset(1000)">1000</button>
-      </div>
-      <input type="number" id="customQtyInput" class="custom-qty-input" placeholder="ระบุจำนวนเอง (เช่น 150)" step="10">
-      <div class="modal-actions">
-        <button class="btn-clear" onclick="clearSelectedItem()">ลบรายการ</button>
-        <button class="btn-confirm" onclick="confirmQty()">ตกลง</button>
-      </div>
-    </div>
-  </div>
+    // ฟังก์ชันสร้าง UI แสดงผลรายการไอเทม
+    function renderItems() {
+      const container = document.getElementById("item-list");
+      container.innerHTML = "";
 
-  <!-- Modal 2: สรุปออเดอร์ -->
-  <div class="modal-overlay" id="confirmOrderModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 style="margin:0;">🛒 สรุปรายการสั่งซื้อ</h3>
-        <button onclick="closeConfirmModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
-      </div>
-      
-      <div class="summary-box" id="orderSummaryBox"></div>
+      itemsData.forEach(item => {
+        // เลือกไฟล์ภาพตาม category
+        const spriteImage = item.category === "crops" ? "crop.png" : "food.png";
+        
+        // คำนวณตำแหน่ง Background Offset ใน Sprite
+        const bgPosX = -(item.col * ICON_SIZE);
+        const bgPosY = -(item.row * ICON_SIZE);
 
-      <div style="margin-bottom: 10px;">
-        <label style="display:block; font-size:14px; font-weight:600; margin-bottom:6px;">🏷️ กรอก Tag หรือชื่อในเกม <span style="color:#ef4444;">*</span></label>
-        <input type="text" id="finalPlayerTag" class="custom-qty-input" placeholder="เช่น #12345678 หรือ ชื่อในเกม">
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeConfirmModal()">ย้อนกลับ</button>
-        <button class="btn-confirm" onclick="processFinalOrder()">ยืนยันสั่งซื้อ</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
-
-  // พิกัดรูปใน food.png คำนวณตาม col (0-15) และ row (0-11)
-    // ข้อมูลสินค้า ปรับขนาดและพิกัดใหม่ให้ตรงกลางพอดี
-  const itemsData = [
-    // --- 🌱 ผัก / ผลไม้ (crops_sheet.png) ---
-    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "0.2% 1.8%" },
-    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "8.4% 1.8%" },
-    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "16.7% 1.8%" },
-    { id: 4, name: "อ้อย", level: 7, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "25.0% 1.8%" },
-    { id: 5, name: "แครอท", level: 9, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "33.3% 1.8%" },
-    { id: 6, name: "คราม", level: 13, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "41.6% 1.8%" },
-    { id: 7, name: "ฟักทอง", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "49.9% 1.8%" },
-    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "58.2% 1.8%" },
-    { id: 9, name: "ฝ้าย", level: 18, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "66.5% 1.8%" },
-    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "74.8% 1.8%" },
-    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "83.1% 1.8%" },
-    { id: 12, name: "พริก", level: 25, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "91.4% 1.8%" },
-    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "99.8% 1.8%" },
-    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "0.2% 21.0%" },
-    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "8.4% 21.0%" },
-    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "16.7% 21.0%" },
-    { id: 17, name: "โกโก้", level: 36, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "25.0% 21.0%" },
-    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "33.3% 21.0%" },
-    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "41.6% 21.0%" },
-    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "49.9% 21.0%" },
-    { id: 21, name: "สับปะรด", level: 52, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "58.2% 21.0%" },
-    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "66.5% 21.0%" },
-    { id: 23, name: "ข้าว", level: 56, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "74.8% 21.0%" },
-    { id: 24, name: "มะกอก", level: 57, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "83.1% 21.0%" },
-    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "91.4% 21.0%" },
-    { id: 26, name: "กระเทียม", level: 60, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "99.8% 21.0%" },
-
-    // --- 🍿 ขนม / อาหาร (products_sheet_1.png) ---
-    { id: 101, name: "ขนมปัง", level: 2, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "0.5% 1.0%" },
-    { id: 102, name: "คุกกี้", level: 10, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "54.5% 1.0%" },
-    { id: 103, name: "พายแอปเปิ้ล", level: 14, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "54.5% 10.0%" },
-    { id: 104, name: "เบอร์เกอร์", level: 18, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "27.2% 10.0%" },
-    { id: 105, name: "มัฟฟิน", level: 19, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "36.3% 10.0%" },
-    { id: 106, name: "เค้กพิซซ่า", level: 33, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "27.2% 30.0%" },
-
-    // --- 🍿 ขนม / อาหาร (products_sheet_2.png) ---
-    { id: 201, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "0.5% 1.0%" },
-    { id: 202, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "9.0% 1.0%" },
-    { id: 203, name: "หมวกปาร์ตี้", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "18.0% 1.0%" },
-    { id: 204, name: "แซนด์วิช", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "27.0% 1.0%" },
-    { id: 205, name: "ผ้าพันคอ", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "36.0% 1.0%" },
-    { id: 206, name: "น้ำส้ม", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "45.0% 1.0%" },
-    { id: 207, name: "ชานมร้อน", level: 72, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "63.0% 1.0%" },
-    { id: 208, name: "แยมผลไม้", level: 74, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "0.5% 32.0%" },
-    { id: 209, name: "สายไหม", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "36.0% 32.0%" },
-    { id: 210, name: "ฮอตดอก", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "45.0% 32.0%" },
-    { id: 211, name: "สลัด", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "54.0% 32.0%" },
-    { id: 212, name: "โดนัท", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "72.0% 32.0%" },
-    { id: 213, name: "ทาโก้", level: 77, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "90.0% 32.0%" },
-    { id: 214, name: "ช็อกโกแลตร้อน", level: 80, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "27.0% 97.0%" }
-  ];
-
-
-  let cart = {}; 
-  let currentCategory = 'bakery';
-  let activeItemId = null;
-
-  function calculateCropPrice(qty) {
-    const hundreds = Math.floor(qty / 100);
-    const remainder = qty % 100;
-    const tens = Math.ceil(remainder / 10);
-    return (hundreds * 7) + (tens * 1);
-  }
-
-  function getSpriteStyle(col, row) {
-    // คำนวณตำแหน่ง % ใน Grid (16 columns, 12 rows)
-    const posX = (col / 15) * 100;
-    const posY = (row / 11) * 100;
-    return `background-position: ${posX.toFixed(2)}% ${posY.toFixed(2)}%;`;
-  }
-
-  function renderItems() {
-    const list = document.getElementById('itemList');
-    list.innerHTML = '';
-
-    const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-    const userLv = document.getElementById('userLevel').value ? parseInt(document.getElementById('userLevel').value) : Infinity;
-
-    const filtered = itemsData.filter(i => {
-      const matchCat = i.category === currentCategory;
-      const matchSearch = i.name.toLowerCase().includes(searchText);
-      const matchLv = i.level <= userLv;
-      return matchCat && matchSearch && matchLv;
-    });
-
-    if (filtered.length === 0) {
-      list.innerHTML = `<div style="text-align:center; padding: 40px; color:#94a3b8;">ไม่พบรายการ</div>`;
-      return;
-    }
-
-    filtered.forEach(item => {
-      const selectedQty = cart[item.id] || 0;
-      const row = document.createElement('div');
-      row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
-      row.onclick = () => openModal(item);
-
-      row.innerHTML = `
-        <div class="item-left">
-          <div class="sprite-icon" style="${getSpriteStyle(item.col, item.row)}"></div>
-          <div class="item-info">
-            <span class="item-badge">Lv. ${item.level}</span>
-            <span class="item-name">${item.name}</span>
-          </div>
-        </div>
-        <div class="item-right">
-          ${selectedQty > 0 
-            ? `<div class="item-qty-status">${selectedQty} ชิ้น</div>` 
-            : `<div class="item-action-text">+ เลือกจำนวน</div>`}
-        </div>
-      `;
-      list.appendChild(row);
-    });
-  }
-
-  function switchCategory(cat, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCategory = cat;
-    renderItems();
-  }
-
-  function openModal(item) {
-    activeItemId = item.id;
-    document.getElementById('modalItemName').innerText = `${item.name} (Lv.${item.level})`;
-    document.getElementById('customQtyInput').value = cart[item.id] || '';
-    document.getElementById('qtyModal').style.display = 'flex';
-  }
-
-  function closeModal() {
-    document.getElementById('qtyModal').style.display = 'none';
-    activeItemId = null;
-  }
-
-  function selectPreset(qty) {
-    document.getElementById('customQtyInput').value = qty;
-  }
-
-  function confirmQty() {
-    let inputVal = parseInt(document.getElementById('customQtyInput').value) || 0;
-    if (inputVal > 0) {
-      if (inputVal < 10) inputVal = 10;
-      else if (inputVal % 10 !== 0) inputVal = Math.ceil(inputVal / 10) * 10;
-      cart[activeItemId] = inputVal;
-    } else {
-      delete cart[activeItemId];
-    }
-    closeModal();
-    renderItems();
-    updateCartSummary();
-  }
-
-  function clearSelectedItem() {
-    delete cart[activeItemId];
-    closeModal();
-    renderItems();
-    updateCartSummary();
-  }
-
-  function updateCartSummary() {
-    let totalCount = 0;
-    let totalPrice = 0;
-    Object.keys(cart).forEach(id => {
-      const qty = cart[id];
-      totalCount += qty;
-      totalPrice += calculateCropPrice(qty);
-    });
-    document.getElementById('totalQtyText').innerText = `เลือกไว้ ${totalCount} ชิ้น`;
-    document.getElementById('totalPriceText').innerText = `${totalPrice.toFixed(2)} บาท`;
-  }
-
-  function submitOrder() {
-    if (Object.keys(cart).length === 0) {
-      return alert('กรุณาเลือกอย่างน้อย 1 รายการก่อนส่งออเดอร์ครับ');
-    }
-
-    const summaryBox = document.getElementById('orderSummaryBox');
-    let summaryHTML = '';
-    let totalPrice = 0;
-
-    Object.keys(cart).forEach(id => {
-      const item = itemsData.find(i => i.id == id);
-      if (item) {
-        const qty = cart[id];
-        const itemPrice = calculateCropPrice(qty);
-        totalPrice += itemPrice;
-        summaryHTML += `
-          <div class="summary-item">
-            <span>${item.name} x${qty}</span>
-            <span>${itemPrice.toFixed(2)} ฿</span>
-          </div>
+        const div = document.createElement("div");
+        div.style.margin = "5px";
+        div.innerHTML = `
+          <span class="item-icon" style="background-image: url('${spriteImage}'); background-position: ${bgPosX}px ${bgPosY}px;"></span>
+          <span>${item.name} (Lv. ${item.level})</span>
         `;
-      }
-    });
-
-    summaryHTML += `
-      <div class="summary-total">
-        <span>ราคารวมทั้งหมด</span>
-        <span>${totalPrice.toFixed(2)} บาท</span>
-      </div>
-    `;
-
-    summaryBox.innerHTML = summaryHTML;
-    document.getElementById('confirmOrderModal').style.display = 'flex';
-  }
-
-  function closeConfirmModal() {
-    document.getElementById('confirmOrderModal').style.display = 'none';
-  }
-
-  function processFinalOrder() {
-    const tagInput = document.getElementById('finalPlayerTag');
-    const tag = tagInput.value.trim();
-
-    if (!tag) {
-      return alert('กรุณากรอก Tag หรือชื่อในเกมด้วยครับ');
+        container.appendChild(div);
+      });
     }
 
-    let selectedList = [];
-    let totalPrice = 0;
+    // ฟังก์ชันเปิด-ปิด Modal
+    function openOrderModal() {
+      document.getElementById("order-modal").classList.add("active");
+    }
 
-    Object.keys(cart).forEach(id => {
-      const item = itemsData.find(i => i.id == id);
-      if (item) {
-        const qty = cart[id];
-        const itemPrice = calculateCropPrice(qty);
-        selectedList.push(`${item.name} x${qty} (${itemPrice}฿)`);
-        totalPrice += itemPrice;
+    function closeOrderModal() {
+      document.getElementById("order-modal").classList.remove("active");
+    }
+
+    // ฟังก์ชันตรวจสอบการกรอก Tag และยืนยันออเดอร์
+    function confirmOrder() {
+      const tagValue = document.getElementById("tag-input").value.trim();
+
+      if (!tagValue) {
+        alert("กรุณากรอก Tag ก่อนกดยืนยันสั่งออเดอร์ครับ!");
+        return;
       }
-    });
 
-    const userLv = document.getElementById('userLevel').value;
-    const orderData = {
-      orderId: '#CROP-' + Math.floor(1000 + Math.random() * 9000),
-      tag: `${tag} ${userLv ? '(Lv.' + userLv + ')' : ''}`,
-      items: selectedList.join('\n'),
-      total: totalPrice.toFixed(2)
-    };
+      // ประมวลผลส่งออเดอร์พร้อม Tag
+      console.log("ส่งออเดอร์เรียบร้อย!", {
+        tag: tagValue,
+        items: itemsData
+      });
 
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
-    }).then(() => {
-      alert('ส่งข้อมูลเรียบร้อยครับ!');
-      cart = {};
-      tagInput.value = '';
-      closeConfirmModal();
-      renderItems();
-      updateCartSummary();
-    }).catch(err => {
-      alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-      console.error(err);
-    });
-  }
+      alert(`บันทึกออเดอร์สำหรับ Tag: ${tagValue} เรียบร้อยแล้ว`);
+      
+      // ล้างค่าและปิด Modal
+      document.getElementById("tag-input").value = "";
+      closeOrderModal();
+    }
 
-  renderItems();
-</script>
+    // แสดงผลไอเทมเมื่อโหลดหน้าเว็บ
+    renderItems();
+  </script>
 </body>
 </html>
