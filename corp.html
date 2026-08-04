@@ -3,98 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>สั่งซื้อผลผลิต - Hay Day Shop</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>สั่งซื้อผลผลิต - Hay Day Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
-    body { background-color: #f8fafc; margin: 0; padding-bottom: 110px; }
+    body { background-color: #f8fafc; margin: 0; padding-bottom: 120px; color: #1e293b; }
 
-    /* Header */
-    .header { background: #ffffff; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-    .header h1 { margin: 0; font-size: 20px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-
-    /* Level Filter Box */
-    .level-filter-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px 15px; border-radius: 10px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .level-filter-box label { font-size: 14px; font-weight: 600; color: #166534; white-space: nowrap; }
-    .level-filter-box input { width: 100px; padding: 6px 10px; border: 1px solid #86efac; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; outline: none; }
+    /* Sticky Top Header & Filters */
+    .header-container { position: sticky; top: 0; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; padding: 15px 20px 10px 20px; }
+    .header-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .filter-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .search-input { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: #f8fafc; }
+    .search-input:focus { border-color: #22c55e; background: #fff; }
+    .level-input { width: 110px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; text-align: center; outline: none; background: #f8fafc; }
 
     /* Category Tabs */
-    .category-tabs { display: flex; gap: 10px; padding: 12px 20px; background: #fff; overflow-x: auto; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
+    .category-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
     .category-tabs::-webkit-scrollbar { display: none; }
-    .tab-btn { background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: #64748b; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-    .tab-btn.active { background: #22c55e; color: #ffffff; }
+    .tab-btn { background: #f1f5f9; border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #64748b; white-space: nowrap; cursor: pointer; }
+    .tab-btn.active { background: #22c55e; color: #ffffff; font-weight: 600; }
 
-    /* Container */
+    /* Container & Horizontal Item List (1 Column) */
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-    .section-title { font-size: 16px; font-weight: 600; color: #334155; margin: 15px 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    .item-list { display: flex; flex-direction: column; gap: 8px; }
 
-    /* Grid Items */
-    .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-    .item-card { background: #ffffff; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .item-row { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.15s ease; }
+    .item-row:active { background-color: #f1f5f9; transform: scale(0.99); }
+    .item-row.selected { border-color: #22c55e; background-color: #f0fdf4; }
+
+    .item-left { display: flex; align-items: center; gap: 12px; }
+    .item-badge { background: #fef3c7; color: #d97706; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .item-name { font-size: 15px; font-weight: 500; }
     
-    .item-info { margin-bottom: 10px; }
-    .item-badge { display: inline-block; background: #fef3c7; color: #d97706; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 6px; margin-bottom: 4px; }
-    .item-name { font-size: 15px; font-weight: 600; color: #1e293b; margin: 2px 0; }
-    .item-price { font-size: 13px; color: #16a34a; font-weight: 500; }
+    .item-right { text-align: right; }
+    .item-qty-status { font-size: 14px; font-weight: 600; color: #16a34a; }
+    .item-action-text { font-size: 12px; color: #94a3b8; }
 
-    /* Counter Control (- 0 +) */
-    .counter-control { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border-radius: 8px; border: 1px solid #cbd5e1; padding: 2px; }
-    .btn-qty { width: 28px; height: 28px; border: none; background: #ffffff; border-radius: 6px; font-size: 16px; font-weight: bold; color: #334155; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .btn-qty:active { background: #e2e8f0; }
-    .qty-number { font-size: 14px; font-weight: bold; color: #0f172a; width: 30px; text-align: center; }
-
-    /* Player Tag Section */
+    /* Player Tag */
     .tag-section { background: #ffffff; padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px solid #e2e8f0; }
-    .tag-section label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+    .tag-section label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
     .tag-section input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
 
-    /* Sticky Cart Bar */
+    /* Sticky Bottom Cart */
     .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 12px 20px; box-shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 100; }
     .cart-inner { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .cart-summary { display: flex; flex-direction: column; }
     .cart-count { font-size: 12px; color: #64748b; }
     .cart-total { font-size: 18px; font-weight: bold; color: #16a34a; }
-    .btn-submit { background: #22c55e; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-submit { background: #22c55e; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-submit:disabled { background: #94a3b8; }
+
+    /* Popup Modal สำหรับเลือกจำนวน */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+    .modal-content { background: #ffffff; width: 100%; max-width: 600px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.2s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+
+    .qty-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+    .preset-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .preset-btn:hover { background: #f0fdf4; border-color: #22c55e; color: #16a34a; }
+
+    .custom-qty-box { display: flex; gap: 8px; margin-bottom: 15px; }
+    .custom-qty-input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-confirm { flex: 1; background: #22c55e; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
+    .btn-clear { background: #fee2e2; color: #ef4444; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <h1>🌾 Hay Day Market</h1>
+  <!-- Top Search & Filters -->
+  <div class="header-container">
+    <div class="header-title">
+      <span>🌾 Hay Day Market</span>
+    </div>
+    <div class="filter-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 พิมพ์ชื่อวัตถุดิบ (เช่น อ้อย)..." oninput="renderItems()">
+      <input type="number" id="userLevel" class="level-input" placeholder="🎯 เลเวล" oninput="renderItems()">
+    </div>
     
-    <!-- Level Filter Input -->
-    <div class="level-filter-box">
-      <label for="userLevel">🎯 ระบุเลเวลฟาร์มของคุณ:</label>
-      <input type="number" id="userLevel" min="1" max="999" placeholder="เช่น 25" oninput="onLevelChange()">
+    <div class="category-tabs">
+      <button class="tab-btn active" onclick="switchCategory('crops', this)">🌱 ผัก/ผลไม้</button>
+      <button class="tab-btn" onclick="switchCategory('bakery', this)">🍿 ขนม / อาหาร (เร็วๆ นี้)</button>
+      <button class="tab-btn" onclick="switchCategory('feed', this)">🐮 อาหารสัตว์ (เร็วๆ นี้)</button>
     </div>
   </div>
 
-  <!-- Category Tabs -->
-  <div class="category-tabs">
-    <button class="tab-btn active" onclick="switchCategory('crops')">🌱 ผัก/ผลไม้ (พืชไร่)</button>
-    <button class="tab-btn" onclick="switchCategory('bakery')">🍿 ขนม / อาหาร (เร็วๆ นี้)</button>
-    <button class="tab-btn" onclick="switchCategory('feed')">🐮 อาหารสัตว์ (เร็วๆ นี้)</button>
-  </div>
-
+  <!-- Item List -->
   <div class="container">
-    <div class="section-title">
-      <span id="sectionTitle">รายการผักและผลไม้</span>
-      <span id="showingCount" style="font-size: 12px; color: #64748b; font-weight: normal;"></span>
-    </div>
-    
-    <!-- Items Grid -->
-    <div class="item-grid" id="itemGrid"></div>
+    <div class="item-list" id="itemList"></div>
 
-    <!-- Tag Input -->
     <div class="tag-section">
       <label>🏷️ Tag ในเกม / ชื่อในเกม</label>
       <input type="text" id="playerTag" placeholder="เช่น #12345678">
     </div>
   </div>
 
-  <!-- Sticky Bottom Cart -->
+  <!-- Bottom Cart -->
   <div class="cart-bar">
     <div class="cart-inner">
       <div class="cart-summary">
@@ -105,176 +115,218 @@
     </div>
   </div>
 
+  <!-- Modal ป๊อปอัปเลือกจำนวน -->
+  <div class="modal-overlay" id="qtyModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalItemName">ชื่อสินค้า</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      
+      <p style="font-size: 13px; color: #64748b; margin-top: 0;">เลือกจำนวนที่ต้องการ (ขั้นต่ำ 10 ชิ้น / ไม่รับเศษ 1-9)</p>
+      
+      <div class="qty-presets">
+        <button class="preset-btn" onclick="selectPreset(10)">10</button>
+        <button class="preset-btn" onclick="selectPreset(20)">20</button>
+        <button class="preset-btn" onclick="selectPreset(50)">50</button>
+        <button class="preset-btn" onclick="selectPreset(100)">100</button>
+        <button class="preset-btn" onclick="selectPreset(200)">200</button>
+        <button class="preset-btn" onclick="selectPreset(500)">500</button>
+        <button class="preset-btn" onclick="selectPreset(800)">800</button>
+        <button class="preset-btn" onclick="selectPreset(1000)">1000</button>
+      </div>
+
+      <div class="custom-qty-box">
+        <input type="number" id="customQtyInput" class="custom-qty-input" placeholder="ระบุจำนวนเอง (เช่น 150)" step="10">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-clear" onclick="clearSelectedItem()">ลบรายการ</button>
+        <button class="btn-confirm" onclick="confirmQty()">ตกลง</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
-  // รายการสินค้าอิงตามเลเวลจริงในเกม
   const itemsData = [
-    { id: 1, name: "ข้าวโพด", level: 1, price: 1, category: "crops" },
-    { id: 2, name: "ข้าวสาลี", level: 2, price: 1, category: "crops" },
-    { id: 3, name: "ถั่วเหลือง", level: 5, price: 1, category: "crops" },
-    { id: 4, name: "อ้อย", level: 7, price: 1, category: "crops" },
-    { id: 5, name: "แครอท", level: 9, price: 1, category: "crops" },
-    { id: 6, name: "ลาเวนเดอร์", level: 13, price: 1, category: "crops" },
-    { id: 7, name: "ฟักทอง", level: 15, price: 1, category: "crops" },
-    { id: 8, name: "แอปเปิ้ล", level: 15, price: 2, category: "crops" },
-    { id: 9, name: "ฝ้าย", level: 18, price: 1, category: "crops" },
-    { id: 10, name: "ราสเบอร์รี่", level: 19, price: 2, category: "crops" },
-    { id: 11, name: "เชอร์รี่", level: 22, price: 2, category: "crops" },
-    { id: 12, name: "พริก", level: 25, price: 1, category: "crops" },
-    { id: 13, name: "แบล็กเบอร์รี่", level: 26, price: 2, category: "crops" },
-    { id: 14, name: "มะเขือเทศ", level: 30, price: 1, category: "crops" },
-    { id: 15, name: "สตรอว์เบอร์รี", level: 34, price: 2, category: "crops" },
-    { id: 16, name: "มันฝรั่ง", level: 35, price: 1, category: "crops" },
-    { id: 17, name: "โกโก้", level: 36, price: 2, category: "crops" },
-    { id: 18, name: "เมล็ดกาแฟ", level: 42, price: 1, category: "crops" },
-    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, price: 1, category: "crops" },
-    { id: 20, name: "ถั่วลิสง", level: 50, price: 1, category: "crops" },
-    { id: 21, name: "สับปะรด", level: 52, price: 1, category: "crops" },
-    { id: 22, name: "ดอกลิลลี่", level: 53, price: 1, category: "crops" },
-    { id: 23, name: "ข้าวกล้อง", level: 56, price: 1, category: "crops" },
-    { id: 24, name: "มะกอก", level: 57, price: 2, category: "crops" },
-    { id: 25, name: "ผักกาดหอม", level: 58, price: 1, category: "crops" },
-    { id: 26, name: "กระเทียม", level: 60, price: 1, category: "crops" },
-    { id: 27, name: "ดอกทานตะวัน", level: 63, price: 1, category: "crops" },
-    { id: 28, name: "กะหล่ำปลีม่วง", level: 65, price: 1, category: "crops" },
-    { id: 29, name: "เลมอน", level: 66, price: 2, category: "crops" },
-    { id: 30, name: "หอมหัวใหญ่", level: 68, price: 1, category: "crops" },
-    { id: 31, name: "แตงกวา", level: 70, price: 1, category: "crops" },
-    { id: 32, name: "ส้ม", level: 71, price: 2, category: "crops" },
-    { id: 33, name: "บีทรูท", level: 72, price: 1, category: "crops" },
-    { id: 34, name: "พริกหวาน", level: 74, price: 1, category: "crops" },
-    { id: 35, name: "พีช", level: 76, price: 2, category: "crops" },
-    { id: 36, name: "ขิง", level: 78, price: 1, category: "crops" },
-    { id: 37, name: "ใบชา", level: 80, price: 1, category: "crops" },
-    { id: 38, name: "ดอกโบตั๋น", level: 82, price: 1, category: "crops" },
-    { id: 39, name: "บรอกโคลี", level: 83, price: 1, category: "crops" },
-    { id: 40, name: "องุ่น", level: 84, price: 2, category: "crops" },
-    { id: 41, name: "ขึ้นฉ่าย", level: 85, price: 1, category: "crops" },
-    { id: 42, name: "กล้วย", level: 88, price: 2, category: "crops" },
-    { id: 43, name: "เสาวรส", level: 88, price: 2, category: "crops" },
-    { id: 44, name: "เห็ด", level: 89, price: 1, category: "crops" },
-    { id: 45, name: "มะเขือยาว", level: 90, price: 1, category: "crops" },
-    { id: 46, name: "แตงโม", level: 92, price: 1, category: "crops" },
-    { id: 47, name: "พลับ", level: 94, price: 2, category: "crops" },
-    { id: 48, name: "มันแกลบ", level: 94, price: 1, category: "crops" },
-    { id: 49, name: "มันสำปะหลัง", level: 95, price: 1, category: "crops" },
-    { id: 50, name: "มะม่วง", level: 97, price: 2, category: "crops" },
-    { id: 51, name: "มะพร้าว", level: 101, price: 2, category: "crops" },
-    { id: 52, name: "ฝรั่ง", level: 104, price: 2, category: "crops" },
-    { id: 53, name: "ทับทิม", level: 107, price: 2, category: "crops" },
-    { id: 54, name: "ข้าวโอ๊ต", level: 119, price: 1, category: "crops" }
+    { id: 1, name: "ข้าวโพด", level: 1, category: "crops" },
+    { id: 2, name: "ข้าวสาลี", level: 2, category: "crops" },
+    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops" },
+    { id: 4, name: "อ้อย", level: 7, category: "crops" },
+    { id: 5, name: "แครอท", level: 9, category: "crops" },
+    { id: 6, name: "ลาเวนเดอร์", level: 13, category: "crops" },
+    { id: 7, name: "ฟักทอง", level: 15, category: "crops" },
+    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops" },
+    { id: 9, name: "ฝ้าย", level: 18, category: "crops" },
+    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops" },
+    { id: 11, name: "เชอร์รี่", level: 22, category: "crops" },
+    { id: 12, name: "พริก", level: 25, category: "crops" },
+    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops" },
+    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops" },
+    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops" },
+    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops" },
+    { id: 17, name: "โกโก้", level: 36, category: "crops" },
+    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops" },
+    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops" },
+    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops" },
+    { id: 21, name: "สับปะรด", level: 52, category: "crops" },
+    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops" },
+    { id: 23, name: "ข้าวกล้อง", level: 56, category: "crops" },
+    { id: 24, name: "มะกอก", level: 57, category: "crops" },
+    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops" },
+    { id: 26, name: "กระเทียม", level: 60, category: "crops" },
+    { id: 27, name: "ดอกทานตะวัน", level: 63, category: "crops" },
+    { id: 28, name: "กะหล่ำปลีม่วง", level: 65, category: "crops" },
+    { id: 29, name: "เลมอน", level: 66, category: "crops" },
+    { id: 30, name: "หอมหัวใหญ่", level: 68, category: "crops" },
+    { id: 31, name: "แตงกวา", level: 70, category: "crops" },
+    { id: 32, name: "ส้ม", level: 71, category: "crops" },
+    { id: 33, name: "บีทรูท", level: 72, category: "crops" },
+    { id: 34, name: "พริกหวาน", level: 74, category: "crops" },
+    { id: 35, name: "พีช", level: 76, category: "crops" },
+    { id: 36, name: "ขิง", level: 78, category: "crops" },
+    { id: 37, name: "ใบชา", level: 80, category: "crops" },
+    { id: 38, name: "ดอกโบตั๋น", level: 82, category: "crops" },
+    { id: 39, name: "บรอกโคลี", level: 83, category: "crops" },
+    { id: 40, name: "องุ่น", level: 84, category: "crops" },
+    { id: 41, name: "ขึ้นฉ่าย", level: 85, category: "crops" },
+    { id: 42, name: "กล้วย", level: 88, category: "crops" },
+    { id: 43, name: "เสาวรส", level: 88, category: "crops" },
+    { id: 44, name: "เห็ด", level: 89, category: "crops" },
+    { id: 45, name: "มะเขือยาว", level: 90, category: "crops" },
+    { id: 46, name: "แตงโม", level: 92, category: "crops" },
+    { id: 47, name: "พลับ", level: 94, category: "crops" },
+    { id: 48, name: "มันแกลบ", level: 94, category: "crops" },
+    { id: 49, name: "มันสำปะหลัง", level: 95, category: "crops" },
+    { id: 50, name: "มะม่วง", level: 97, category: "crops" },
+    { id: 51, name: "มะพร้าว", level: 101, category: "crops" },
+    { id: 52, name: "ฝรั่ง", level: 104, category: "crops" },
+    { id: 53, name: "ทับทิม", level: 107, category: "crops" },
+    { id: 54, name: "ข้าวโอ๊ต", level: 119, category: "crops" }
   ];
 
-  let cart = {};
+  let cart = {}; 
   let currentCategory = 'crops';
+  let activeItemId = null;
 
-  // เมื่อพิมพ์เปลี่ยนแปลงระดับเลเวล
-  function onLevelChange() {
-    const levelInput = document.getElementById('userLevel').value;
-    const userLv = levelInput ? parseInt(levelInput) : Infinity;
-
-    // เคลียร์สินค้าในตะกร้าที่เลเวลเกินจากที่กำหนด
-    Object.keys(cart).forEach(id => {
-      const item = itemsData.find(i => i.id == id);
-      if (item && item.level > userLv) {
-        delete cart[id];
-      }
-    });
-
-    renderItems(currentCategory);
-    updateCartSummary();
+  // คำนวณราคาผัก: 100 ละ 7 บาท / เศษที่เหลือ 10 ละ 1 บาท
+  function calculateCropPrice(qty) {
+    const hundreds = Math.floor(qty / 100);
+    const remainder = qty % 100;
+    const tens = Math.ceil(remainder / 10);
+    return (hundreds * 7) + (tens * 1);
   }
 
-  // Render แสดงรายการสินค้าตามหมวดและเลเวล
-  function renderItems(category) {
-    currentCategory = category;
-    const grid = document.getElementById('itemGrid');
-    grid.innerHTML = '';
-    
-    const levelInput = document.getElementById('userLevel').value;
-    const maxLevel = levelInput ? parseInt(levelInput) : Infinity;
+  // Render แถวรายการแนวนอน
+  function renderItems() {
+    const list = document.getElementById('itemList');
+    list.innerHTML = '';
 
-    // กรองสินค้าตามหมวดหมู่ และ ไม่เกินเลเวลที่ระบุ
-    const filteredItems = itemsData.filter(i => i.category === category && i.level <= maxLevel);
+    const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+    const userLv = document.getElementById('userLevel').value ? parseInt(document.getElementById('userLevel').value) : Infinity;
 
-    document.getElementById('showingCount').innerText = levelInput 
-      ? `(แสดงเฉพาะ Lv. 1 - ${maxLevel})` 
-      : `(แสดงทั้งหมด)`;
+    const filtered = itemsData.filter(i => {
+      const matchCat = i.category === currentCategory;
+      const matchSearch = i.name.toLowerCase().includes(searchText);
+      const matchLv = i.level <= userLv;
+      return matchCat && matchSearch && matchLv;
+    });
 
-    if (filteredItems.length === 0) {
-      grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#94a3b8;">
-        ${levelInput ? '❌ ไม่พบไอเทมที่ตรงกับเลเวลของคุณ' : '🚧 หมวดหมู่นี้กำลังเตรียมอัปเดตไอเทมเร็วๆ นี้ครับ'}
-      </div>`;
+    if (filtered.length === 0) {
+      list.innerHTML = `<div style="text-align:center; padding: 40px; color:#94a3b8;">ไม่พบรายการที่ค้นหา</div>`;
       return;
     }
 
-    filteredItems.forEach(item => {
-      const currentQty = cart[item.id] || 0;
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      card.innerHTML = `
-        <div class="item-info">
+    filtered.forEach(item => {
+      const selectedQty = cart[item.id] || 0;
+      const row = document.createElement('div');
+      row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
+      row.onclick = () => openModal(item);
+
+      row.innerHTML = `
+        <div class="item-left">
           <span class="item-badge">Lv. ${item.level}</span>
-          <div class="item-name">${item.name}</div>
-          <div class="item-price">${item.price} บาท / ชิ้น</div>
+          <span class="item-name">${item.name}</span>
         </div>
-        <div class="counter-control">
-          <button class="btn-qty" onclick="updateQty(${item.id}, -1)">-</button>
-          <span class="qty-number" id="qty-${item.id}">${currentQty}</span>
-          <button class="btn-qty" onclick="updateQty(${item.id}, 1)">+</button>
+        <div class="item-right">
+          ${selectedQty > 0 
+            ? `<div class="item-qty-status">${selectedQty} ชิ้น</div>` 
+            : `<div class="item-action-text">+ เลือกจำนวน</div>`}
         </div>
       `;
-      grid.appendChild(card);
+      list.appendChild(row);
     });
   }
 
-  // ปรับจำนวนสินค้า
-  function updateQty(itemId, change) {
-    const current = cart[itemId] || 0;
-    const updated = Math.max(0, current + change);
-    
-    if (updated === 0) {
-      delete cart[itemId];
+  // สลับหมวดหมู่
+  function switchCategory(cat, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = cat;
+    renderItems();
+  }
+
+  // เปิด/ปิด Modal
+  function openModal(item) {
+    activeItemId = item.id;
+    document.getElementById('modalItemName').innerText = `${item.name} (Lv.${item.level})`;
+    document.getElementById('customQtyInput').value = cart[item.id] || '';
+    document.getElementById('qtyModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('qtyModal').style.display = 'none';
+    activeItemId = null;
+  }
+
+  function selectPreset(qty) {
+    document.getElementById('customQtyInput').value = qty;
+  }
+
+  // ตกลงเลือกจำนวน + ปัดเศษขึ้นทีละ 10
+  function confirmQty() {
+    let inputVal = parseInt(document.getElementById('customQtyInput').value) || 0;
+
+    if (inputVal > 0) {
+      // หากน้อยกว่า 10 ให้ปรับเป็น 10
+      if (inputVal < 10) {
+        inputVal = 10;
+      } else if (inputVal % 10 !== 0) {
+        // หากมีเศษ 1-9 ให้ปัดขึ้นเป็นทวีคูณของ 10
+        inputVal = Math.ceil(inputVal / 10) * 10;
+      }
+      cart[activeItemId] = inputVal;
     } else {
-      cart[itemId] = updated;
+      delete cart[activeItemId];
     }
 
-    const qtyElement = document.getElementById(`qty-${itemId}`);
-    if (qtyElement) qtyElement.innerText = updated;
-
+    closeModal();
+    renderItems();
     updateCartSummary();
   }
 
-  // สรุปตะกร้าสินค้า
+  function clearSelectedItem() {
+    delete cart[activeItemId];
+    closeModal();
+    renderItems();
+    updateCartSummary();
+  }
+
+  // คำนวณสรุปราคาในตะกร้า
   function updateCartSummary() {
     let totalCount = 0;
     let totalPrice = 0;
 
     Object.keys(cart).forEach(id => {
-      const item = itemsData.find(i => i.id == id);
-      if (item) {
-        totalCount += cart[id];
-        totalPrice += cart[id] * item.price;
-      }
+      const qty = cart[id];
+      totalCount += qty;
+      totalPrice += calculateCropPrice(qty);
     });
 
     document.getElementById('totalQtyText').innerText = `เลือกไว้ ${totalCount} ชิ้น`;
     document.getElementById('totalPriceText').innerText = `${totalPrice.toFixed(2)} บาท`;
-  }
-
-  // สลับหมวดหมู่
-  function switchCategory(cat) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    const titles = {
-      crops: 'รายการผักและผลไม้ (พืชไร่)',
-      bakery: 'รายการขนมและอาหาร',
-      feed: 'รายการอาหารสัตว์'
-    };
-    document.getElementById('sectionTitle').innerText = titles[cat];
-    renderItems(cat);
   }
 
   // ส่งออเดอร์
@@ -284,7 +336,7 @@
     const btn = document.getElementById('submitBtn');
 
     if (Object.keys(cart).length === 0) {
-      alert('กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้นครับ');
+      alert('กรุณาเลือกอย่างน้อย 1 รายการครับ');
       return;
     }
 
@@ -301,8 +353,9 @@
       const item = itemsData.find(i => i.id == id);
       if (item) {
         const qty = cart[id];
-        selectedList.push(`${item.name} x${qty}`);
-        totalPrice += qty * item.price;
+        const itemPrice = calculateCropPrice(qty);
+        selectedList.push(`${item.name} x${qty} (${itemPrice}฿)`);
+        totalPrice += itemPrice;
       }
     });
 
@@ -328,7 +381,7 @@
       alert('สั่งซื้อสำเร็จ! ออเดอร์ส่งเข้าระบบเรียบร้อยแล้ว');
       cart = {};
       tagInput.value = '';
-      renderItems(currentCategory);
+      renderItems();
       updateCartSummary();
 
       setTimeout(() => {
@@ -343,8 +396,8 @@
     });
   }
 
-  // โหลดหน้าเว็บครั้งแรก
-  renderItems('crops');
+  // โหลดหน้าแรก
+  renderItems();
 </script>
 </body>
 </html>
