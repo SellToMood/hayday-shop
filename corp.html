@@ -316,9 +316,7 @@
 
   function closeConfirmModal() {
     document.getElementById('confirmOrderModal').style.display = 'none';
-  }
-
-  function processFinalOrder() {
+  ///  function processFinalOrder() {
     const tagInput = document.getElementById('finalPlayerTag');
     const tag = tagInput.value.trim();
 
@@ -340,8 +338,10 @@
     });
 
     const userLv = document.getElementById('userLevel').value;
+    const generatedOrderId = '#CROP-' + Math.floor(1000 + Math.random() * 9000); // สุ่มเลขออเดอร์
+
     const orderData = {
-      orderId: '#CROP-' + Math.floor(1000 + Math.random() * 9000),
+      orderId: generatedOrderId,
       tag: `${tag} ${userLv ? '(Lv.' + userLv + ')' : ''}`,
       items: selectedList.join('\n'),
       total: totalPrice.toFixed(2)
@@ -353,9 +353,17 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     }).then(() => {
-      alert('ส่งข้อมูลเรียบร้อยครับ!');
+      // 1. คัดลอกเลขออเดอร์ลง Clipboard ของลูกค้าอัตโนมัติ
+      navigator.clipboard.writeText(generatedOrderId).then(() => {
+        alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}\n(คัดลอกเลขออเดอร์ลงคลิปบอร์ดแล้ว)`);
+      }).catch(() => {
+        // กรณีเบราว์เซอร์ไม่รองรับการก๊อปปี้อัตโนมัติ ให้แสดงเลขปกติ
+        alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}`);
+      });
+
+      // 2. เคลียร์ข้อมูลเดิม และลบ Tag ออกจากช่องกรอก
       cart = {};
-      tagInput.value = '';
+      tagInput.value = ''; // ลบแท็กที่เคยกรอกออก
       closeConfirmModal();
       renderItems();
       updateCartSummary();
@@ -364,6 +372,7 @@
       console.error(err);
     });
   }
+}
 
   renderItems();
 </script>
