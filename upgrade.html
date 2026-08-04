@@ -52,14 +52,12 @@
 </div>
 
 <script>
-  // โครงสร้างข้อมูลไอเทมและราคา
   const categories = {
     barn: { name: "อัปโรงนา", items: ["ไม้กระดาน", "เทป", "สลัก"], mixPrice: 10 },
     silo: { name: "อัปยุ้งฉาง", items: ["สกรู", "ไม้ฝา", "ตะปู"], mixPrice: 10 },
     land: { name: "ขยายพื้นที่", items: ["หมุด", "โฉนด", "ค้อน"], mixPrice: 12 }
   };
 
-  // URL Google Apps Script ของคุณ
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
   function updateOptions() {
@@ -156,7 +154,6 @@
       itemsDetail = `${cat.name} (${selectedItem} ล้วน 89 ชิ้น)`;
     }
 
-    // ⏳ หน่วงปุ่มกดเพื่อป้องกันการกดซ้ำ
     btn.disabled = true;
     const originalBtnText = btn.innerText;
     btn.innerText = '⏳ กำลังส่งออเดอร์...';
@@ -176,13 +173,10 @@
       body: JSON.stringify(orderData)
     })
     .then(() => {
-      alert('สั่งซื้อสำเร็จ! ออเดอร์ถูกส่งเรียบร้อยแล้ว');
-      
-      // 🔄 ล้างค่า Tag และรีเซ็ตช่องตัวเลือก
+      alert('ส่งออเดอร์เรียบร้อยแล้ว!');
       tagInput.value = '';
       updateOptions();
       
-      // ปลดล็อกปุ่มสั่งซื้อหลังจากผ่านไป 3 วินาที
       setTimeout(() => {
         btn.disabled = false;
         btn.innerText = originalBtnText;
@@ -197,7 +191,6 @@
     });
   }
 
-  // เรียกใช้ครั้งแรกเมื่อโหลดหน้า
   updateOptions();
 </script>
 
