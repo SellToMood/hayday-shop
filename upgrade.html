@@ -59,7 +59,7 @@
     land: { name: "ขยายพื้นที่", items: ["หมุด", "โฉนด", "ค้อน"], mixPrice: 12 }
   };
 
-  // WEB_APP_URL ของ Google Apps Script เดิมที่คุณตั้งค่าไว้
+  // ⚠️ วาง URL ของ Google Apps Script ของคุณลงในอัญประกาศด้านล่างนี้
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
   function updateOptions() {
@@ -72,24 +72,112 @@
 
     if (buyType === 'mix') {
       price = cat.mixPrice;
-      html = `<p><b>รายละเอียด:</b> ระบบจะจัดคละไอเทม (${cat.items.join(', ')}) ให้รวมครบ 89 ชิ้น</p>`;
+      html = `<p style="margin:5px 0;"><b>รายละเอียด:</b> ระบบจะจัดคละไอเทม (${cat.items.join(', ')}) ให้รวมครบ 89 ชิ้น</p>`;
     } 
     else if (buyType === 'custom') {
       price = 15;
-      html = `<p><b>กำหนดจำนวนเอง (รวมกันต้องได้ 89 ชิ้น):</b></p>`;
+      html = `<p style="margin:5px 0 10px 0;"><b>กำหนดจำนวนเอง (รวมกันต้องได้ 89 ชิ้น):</b></p>`;
       cat.items.forEach((item, idx) => {
-        html += `<label>${item}: <input type="number" id="item_${idx}" value="0" min="0" onchange="calculateCustom()"></label><br>`;
+        html += `<div style="margin-bottom:8px;"><label>${item}: </label><input type="number" id="item_${idx}" value="0" min="0" oninput="calculateCustom()" style="padding:6px;"></div>`;
       });
-      html += `<p id="customCount" style="color:blue;">รวมปัจจุบัน: 0 / 89 ชิ้น</p>`;
+      html += `<p id="customCount" style="color:red; font-weight:bold; margin-top:5px;">รวมปัจจุบัน: 0 / 89 ชิ้น</p>`;
     } 
     else if (buyType === 'single') {
       price = 20;
-      html = `<p><b>เลือกไอเทมล้วน (89 ชิ้น):</b></p>`;
+      html = `<p style="margin:5px 0 8px 0;"><b>เลือกไอเทมล้วน (89 ชิ้น):</b></p>`;
       html += `<select id="singleItemSelect">`;
       cat.items.forEach(item => {
         html += `<option value="${item}">${item} ล้วน</option>`;
       });
       html += `</select>`;
+    }
+
+    container.innerHTML = html;
+    document.getElementById('totalPrice').innerText = `ราคารวม: ${price} บาท`;
+  }
+
+  function calculateCustom() {
+    const catKey = document.getElementById('category').value;
+    const cat = categories[catKey];
+    let totalQty = 0;
+    cat.items.forEach((_, idx) => {
+      const val = parseInt(document.getElementById(`item_${idx}`)?.value || 0);
+      totalQty += (isNaN(val) ? 0 : val);
+    });
+    const countText = document.getElementById('customCount');
+    if (countText) {
+      countText.innerText = `รวมปัจจุบัน: ${totalQty} / 89 ชิ้น`;
+      countText.style.color = (totalQty === 89) ? 'green' : 'red';
+    }
+  }
+
+  function submitOrder() {
+    const catKey = document.getElementById('category').value;
+    const buyType = document.getElementById('buyType').value;
+    const tag = document.getElementById('playerTag').value.trim();
+    const cat = categories[catKey];
+
+    if (!tag) {
+      alert('กรุณากรอก Tag ในเกมด้วยครับ');
+      return;
+    }
+
+    let itemsDetail = '';
+    let price = 0;
+
+    if (buyType === 'mix') {
+      price = cat.mixPrice;
+      itemsDetail = `${cat.name} (คละ 89 ชิ้น)`;
+    } 
+    else if (buyType === 'custom') {
+      price = 15;
+      let totalQty = 0;
+      let details = [];
+      cat.items.forEach((item, idx) => {
+        const qty = parseInt(document.getElementById(`item_${idx}`)?.value || 0);
+        if (!isNaN(qty) && qty > 0) {
+          totalQty += qty;
+          details.push(`${item} x${qty}`);
+        }
+      });
+
+      if (totalQty !== 89) {
+        alert('จำนวนไอเทมรวมกันต้องเท่ากับ 89 ชิ้นพอดีครับ! (ตอนนี้ได้ ' + totalQty + ' ชิ้น)');
+        return;
+      }
+      itemsDetail = `${cat.name} (เลือกเอง):\n` + details.join('\n');
+    } 
+    else if (buyType === 'single') {
+      price = 20;
+      const selectedItem = document.getElementById('singleItemSelect').value;
+      itemsDetail = `${cat.name} (${selectedItem} ล้วน 89 ชิ้น)`;
+    }
+
+    const orderData = {
+      orderId: '#UP-' + Math.floor(1000 + Math.random() * 9000),
+      tag: tag,
+      items: itemsDetail,
+      total: price
+    };
+
+    // ปรับรูปแบบการส่งให้ทะลุข้อจำกัด CORS
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    })
+    .then(() => {
+      alert('สั่งซื้อสำเร็จ! ออเดอร์ถูกส่งเรียบร้อยแล้ว');
+      document.getElementById('playerTag').value = '';
+    })
+    .catch(err => alert('เกิดข้อผิดพลาด: ' + err));
+  }
+
+  // เรียกใช้ครั้งแรกเมื่อโหลดหน้า
+  updateOptions();
+</script>
+`;
     }
 
     container.innerHTML = html;
