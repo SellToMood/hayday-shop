@@ -28,12 +28,14 @@
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
     .item-list { display: flex; flex-direction: column; gap: 8px; }
 
-    .item-row { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.15s ease; }
+    .item-row { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.15s ease; }
     .item-row:active { background-color: #f1f5f9; transform: scale(0.99); }
     .item-row.selected { border-color: #22c55e; background-color: #f0fdf4; }
 
     .item-left { display: flex; align-items: center; gap: 12px; }
-    .item-badge { background: #fef3c7; color: #d97706; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .item-img { width: 42px; height: 42px; object-fit: contain; border-radius: 8px; background: #fafafa; padding: 2px; border: 1px solid #f1f5f9; }
+    .item-info { display: flex; flex-direction: column; gap: 2px; }
+    .item-badge { display: inline-block; background: #fef3c7; color: #d97706; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; width: fit-content; }
     .item-name { font-size: 15px; font-weight: 500; }
     
     .item-right { text-align: right; }
@@ -60,6 +62,8 @@
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .modal-title-box { display: flex; align-items: center; gap: 10px; }
+    .modal-img { width: 36px; height: 36px; object-fit: contain; }
     .modal-title { font-size: 18px; font-weight: 600; }
     .modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; }
 
@@ -119,7 +123,10 @@
   <div class="modal-overlay" id="qtyModal">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title" id="modalItemName">ชื่อสินค้า</div>
+        <div class="modal-title-box">
+          <img id="modalItemImg" class="modal-img" src="" alt="">
+          <div class="modal-title" id="modalItemName">ชื่อสินค้า</div>
+        </div>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       
@@ -150,61 +157,62 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
+  // ใช้ภาพจาก Wiki Hay Day Official เพื่อความคมชัดสวยงามตรงตามเลเวลในภาพที่คุณส่งมา
   const itemsData = [
-    { id: 1, name: "ข้าวโพด", level: 1, category: "crops" },
-    { id: 2, name: "ข้าวสาลี", level: 2, category: "crops" },
-    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops" },
-    { id: 4, name: "อ้อย", level: 7, category: "crops" },
-    { id: 5, name: "แครอท", level: 9, category: "crops" },
-    { id: 6, name: "ลาเวนเดอร์", level: 13, category: "crops" },
-    { id: 7, name: "ฟักทอง", level: 15, category: "crops" },
-    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops" },
-    { id: 9, name: "ฝ้าย", level: 18, category: "crops" },
-    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops" },
-    { id: 11, name: "เชอร์รี่", level: 22, category: "crops" },
-    { id: 12, name: "พริก", level: 25, category: "crops" },
-    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops" },
-    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops" },
-    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops" },
-    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops" },
-    { id: 17, name: "โกโก้", level: 36, category: "crops" },
-    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops" },
-    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops" },
-    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops" },
-    { id: 21, name: "สับปะรด", level: 52, category: "crops" },
-    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops" },
-    { id: 23, name: "ข้าวกล้อง", level: 56, category: "crops" },
-    { id: 24, name: "มะกอก", level: 57, category: "crops" },
-    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops" },
-    { id: 26, name: "กระเทียม", level: 60, category: "crops" },
-    { id: 27, name: "ดอกทานตะวัน", level: 63, category: "crops" },
-    { id: 28, name: "กะหล่ำปลีม่วง", level: 65, category: "crops" },
-    { id: 29, name: "เลมอน", level: 66, category: "crops" },
-    { id: 30, name: "หอมหัวใหญ่", level: 68, category: "crops" },
-    { id: 31, name: "แตงกวา", level: 70, category: "crops" },
-    { id: 32, name: "ส้ม", level: 71, category: "crops" },
-    { id: 33, name: "บีทรูท", level: 72, category: "crops" },
-    { id: 34, name: "พริกหวาน", level: 74, category: "crops" },
-    { id: 35, name: "พีช", level: 76, category: "crops" },
-    { id: 36, name: "ขิง", level: 78, category: "crops" },
-    { id: 37, name: "ใบชา", level: 80, category: "crops" },
-    { id: 38, name: "ดอกโบตั๋น", level: 82, category: "crops" },
-    { id: 39, name: "บรอกโคลี", level: 83, category: "crops" },
-    { id: 40, name: "องุ่น", level: 84, category: "crops" },
-    { id: 41, name: "ขึ้นฉ่าย", level: 85, category: "crops" },
-    { id: 42, name: "กล้วย", level: 88, category: "crops" },
-    { id: 43, name: "เสาวรส", level: 88, category: "crops" },
-    { id: 44, name: "เห็ด", level: 89, category: "crops" },
-    { id: 45, name: "มะเขือยาว", level: 90, category: "crops" },
-    { id: 46, name: "แตงโม", level: 92, category: "crops" },
-    { id: 47, name: "พลับ", level: 94, category: "crops" },
-    { id: 48, name: "มันแกลบ", level: 94, category: "crops" },
-    { id: 49, name: "มันสำปะหลัง", level: 95, category: "crops" },
-    { id: 50, name: "มะม่วง", level: 97, category: "crops" },
-    { id: 51, name: "มะพร้าว", level: 101, category: "crops" },
-    { id: 52, name: "ฝรั่ง", level: 104, category: "crops" },
-    { id: 53, name: "ทับทิม", level: 107, category: "crops" },
-    { id: 54, name: "ข้าวโอ๊ต", level: 119, category: "crops" }
+    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/7/7b/Wheat.png" },
+    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/f/f8/Corn.png" },
+    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/b/b1/Soybean.png" },
+    { id: 4, name: "อ้อย", level: 7, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/7/76/Sugarcane.png" },
+    { id: 5, name: "แครอท", level: 9, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/c/c3/Carrot.png" },
+    { id: 6, name: "คราม (ลาเวนเดอร์)", level: 13, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/7/79/Indigo.png" },
+    { id: 7, name: "ฟักทอง", level: 15, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/6/64/Pumpkin.png" },
+    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/f/f1/Apple.png" },
+    { id: 9, name: "ฝ้าย", level: 18, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/26/Cotton.png" },
+    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/f/fa/Raspberry.png" },
+    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/1/18/Cherry.png" },
+    { id: 12, name: "พริก", level: 25, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/30/Chili_Pepper.png" },
+    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/3d/Blackberry.png" },
+    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/0/07/Tomato.png" },
+    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/d/d3/Strawberry.png" },
+    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/c/c2/Potato.png" },
+    { id: 17, name: "โกโก้", level: 36, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/e/e9/Cacao.png" },
+    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/2f/Coffee_Bean.png" },
+    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/5/52/Asparagus.png" },
+    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/4/4c/Peanuts_in_Pod.png" },
+    { id: 21, name: "สับปะรด", level: 52, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/9/91/Pineapple.png" },
+    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/f/f6/Lily.png" },
+    { id: 23, name: "งา", level: 56, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/a/a2/Sesame.png" },
+    { id: 24, name: "มะกอก", level: 57, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/1/1a/Olive.png" },
+    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/8/87/Lettuce.png" },
+    { id: 26, name: "กระเทียม", level: 60, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/0/06/Garlic.png" },
+    { id: 27, name: "ดอกทานตะวัน", level: 63, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/4/4b/Sunflower.png" },
+    { id: 28, name: "กะหล่ำปลีม่วง", level: 65, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/c/c5/Cabbage.png" },
+    { id: 29, name: "เลมอน", level: 66, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/23/Lemon.png" },
+    { id: 30, name: "หอมหัวใหญ่", level: 68, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/0/05/Onion.png" },
+    { id: 31, name: "แตงกวา", level: 70, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/7/77/Cucumber.png" },
+    { id: 32, name: "ส้ม", level: 71, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/30/Orange.png" },
+    { id: 33, name: "บีทรูท", level: 72, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/4/40/Beetroot.png" },
+    { id: 34, name: "พริกหวาน", level: 74, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/d/d7/Bell_Pepper.png" },
+    { id: 35, name: "พีช", level: 76, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/0/0a/Peach.png" },
+    { id: 36, name: "ขิง", level: 78, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/36/Ginger.png" },
+    { id: 37, name: "ใบชา", level: 80, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/3d/Tea_Leaves.png" },
+    { id: 38, name: "ดอกโบตั๋น", level: 82, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/1/14/Peony.png" },
+    { id: 39, name: "บรอกโคลี", level: 83, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/5/5b/Broccoli.png" },
+    { id: 40, name: "องุ่น", level: 84, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/6/6c/Grapes.png" },
+    { id: 41, name: "ขึ้นฉ่าย", level: 85, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/5/52/Passion_Fruit.png" },
+    { id: 42, name: "กล้วย", level: 88, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/0/0c/Banana.png" },
+    { id: 43, name: "เสาวรส", level: 88, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/5/52/Passion_Fruit.png" },
+    { id: 44, name: "เห็ด", level: 89, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/a/a2/Mushroom.png" },
+    { id: 45, name: "มะเขือยาว", level: 90, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/e/ef/Eggplant.png" },
+    { id: 46, name: "แตงโม", level: 92, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/23/Watermelon.png" },
+    { id: 47, name: "พลับ", level: 94, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/24/Plum.png" },
+    { id: 48, name: "มันแกลบ", level: 94, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/a/a5/Clay.png" },
+    { id: 49, name: "มันสำปะหลัง", level: 95, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/8/82/Chickpea.png" },
+    { id: 50, name: "มะม่วง", level: 97, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/3/30/Mango.png" },
+    { id: 51, name: "มะพร้าว", level: 101, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/1/10/Coconut.png" },
+    { id: 52, name: "ฝรั่ง", level: 104, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/e/eb/Guava.png" },
+    { id: 53, name: "ทับทิม", level: 107, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/f/f6/Pomegranate.png" },
+    { id: 54, name: "ข้าวโอ๊ต", level: 119, category: "crops", img: "https://static.wikia.nocookie.net/hayday/images/2/2f/Oats.png" }
   ];
 
   let cart = {}; 
@@ -219,7 +227,7 @@
     return (hundreds * 7) + (tens * 1);
   }
 
-  // Render แถวรายการแนวนอน
+  // Render แถวรายการแนวนอนพร้อมรูปภาพ
   function renderItems() {
     const list = document.getElementById('itemList');
     list.innerHTML = '';
@@ -247,8 +255,11 @@
 
       row.innerHTML = `
         <div class="item-left">
-          <span class="item-badge">Lv. ${item.level}</span>
-          <span class="item-name">${item.name}</span>
+          <img class="item-img" src="${item.img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/40'">
+          <div class="item-info">
+            <span class="item-badge">Lv. ${item.level}</span>
+            <span class="item-name">${item.name}</span>
+          </div>
         </div>
         <div class="item-right">
           ${selectedQty > 0 
@@ -271,6 +282,7 @@
   // เปิด/ปิด Modal
   function openModal(item) {
     activeItemId = item.id;
+    document.getElementById('modalItemImg').src = item.img;
     document.getElementById('modalItemName').innerText = `${item.name} (Lv.${item.level})`;
     document.getElementById('customQtyInput').value = cart[item.id] || '';
     document.getElementById('qtyModal').style.display = 'flex';
@@ -290,11 +302,9 @@
     let inputVal = parseInt(document.getElementById('customQtyInput').value) || 0;
 
     if (inputVal > 0) {
-      // หากน้อยกว่า 10 ให้ปรับเป็น 10
       if (inputVal < 10) {
         inputVal = 10;
       } else if (inputVal % 10 !== 0) {
-        // หากมีเศษ 1-9 ให้ปัดขึ้นเป็นทวีคูณของ 10
         inputVal = Math.ceil(inputVal / 10) * 10;
       }
       cart[activeItemId] = inputVal;
