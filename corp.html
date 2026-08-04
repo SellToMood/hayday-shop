@@ -31,12 +31,12 @@
 
     .item-left { display: flex; align-items: center; gap: 12px; }
     
-    /* CSS Sprite Icon Box */
+    /* แก้ไขการแสดงผลรูป WebP */
     .sprite-icon {
       width: 44px;
       height: 44px;
       border-radius: 8px;
-      background-repeat: no-repeat;
+      object-fit: contain;
       border: 1px solid #f1f5f9;
     }
 
@@ -126,7 +126,7 @@
     </div>
   </div>
 
-  <!-- Modal 2: ป๊อปอัปสรุปรายการ + พิมพ์ Tag และยืนยันการสั่งซื้อ -->
+  <!-- Modal 2: ป๊อปอัปสรุปรายการ -->
   <div class="modal-overlay" id="confirmOrderModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -134,10 +134,8 @@
         <button onclick="closeConfirmModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
       </div>
       
-      <!-- สรุปรายการสินค้า -->
       <div class="summary-box" id="orderSummaryBox"></div>
 
-      <!-- ช่องกรอก Tag -->
       <div style="margin-bottom: 10px;">
         <label style="display:block; font-size:14px; font-weight:600; margin-bottom:6px;">🏷️ กรอก Tag หรือชื่อในเกม <span style="color:#ef4444;">*</span></label>
         <input type="text" id="finalPlayerTag" class="custom-qty-input" placeholder="เช่น #12345678 หรือ ชื่อในเกม">
@@ -152,20 +150,19 @@
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
-    // รายการสินค้าทั้งหมด (เรียงภาพ item1.webp, item2.webp ไปเรื่อยๆ)
+
+  // รายการสินค้าทั้งหมด
   const itemsData = [
     // --- หมวดผัก / ผลไม้ ---
     { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: "images/item1.webp" },
     { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: "images/item2.webp" },
     { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: "images/item3.webp" },
     { id: 4, name: "อ้อย", level: 7, category: "crops", img: "images/item4.webp" },
-    // ...ใส่ผักผลไม้รายการอื่นๆ ไปจนถึง item38.webp
 
     // --- หมวดขนม / อาหาร ---
     { id: 101, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", img: "images/item39.webp" },
     { id: 102, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", img: "images/item40.webp" },
     { id: 103, name: "หมวกปาร์ตี้", level: 70, category: "bakery", img: "images/item41.webp" }
-    // ...ใส่รายการขนมต่อไล่เลข item ไปเรื่อยๆ จนครบ
   ];
 
   let cart = {}; 
@@ -204,9 +201,10 @@
       row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
       row.onclick = () => openModal(item);
 
+      // แก้ไขให้ดึงรูปภาพจากแท็ก <img> โดยตรง
       row.innerHTML = `
         <div class="item-left">
-          <div class="sprite-icon" style="background-image: url('${item.sheet}'); background-size: ${item.size}; background-position: ${item.pos};"></div>
+          <img src="${item.img}" class="sprite-icon" alt="${item.name}">
           <div class="item-info">
             <span class="item-badge">Lv. ${item.level}</span>
             <span class="item-name">${item.name}</span>
@@ -283,7 +281,6 @@
       return alert('กรุณาเลือกอย่างน้อย 1 รายการก่อนส่งออเดอร์ครับ');
     }
 
-    // สร้าง HTML แสดงรายการสรุปใน Modal ยืนยัน
     const summaryBox = document.getElementById('orderSummaryBox');
     let summaryHTML = '';
     let totalPrice = 0;
@@ -316,7 +313,9 @@
 
   function closeConfirmModal() {
     document.getElementById('confirmOrderModal').style.display = 'none';
-  ///  function processFinalOrder() {
+  }
+
+  function processFinalOrder() {
     const tagInput = document.getElementById('finalPlayerTag');
     const tag = tagInput.value.trim();
 
@@ -338,7 +337,7 @@
     });
 
     const userLv = document.getElementById('userLevel').value;
-    const generatedOrderId = '#CROP-' + Math.floor(1000 + Math.random() * 9000); // สุ่มเลขออเดอร์
+    const generatedOrderId = '#CROP-' + Math.floor(1000 + Math.random() * 9000);
 
     const orderData = {
       orderId: generatedOrderId,
@@ -353,17 +352,16 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     }).then(() => {
-      // 1. คัดลอกเลขออเดอร์ลง Clipboard ของลูกค้าอัตโนมัติ
+      // คัดลอกเลขออเดอร์ลง Clipboard อัตโนมัติ
       navigator.clipboard.writeText(generatedOrderId).then(() => {
         alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}\n(คัดลอกเลขออเดอร์ลงคลิปบอร์ดแล้ว)`);
       }).catch(() => {
-        // กรณีเบราว์เซอร์ไม่รองรับการก๊อปปี้อัตโนมัติ ให้แสดงเลขปกติ
         alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}`);
       });
 
-      // 2. เคลียร์ข้อมูลเดิม และลบ Tag ออกจากช่องกรอก
+      // เคลียร์ตะกร้าสินค้า และลบ Tag ออกจากช่องกรอก
       cart = {};
-      tagInput.value = ''; // ลบแท็กที่เคยกรอกออก
+      tagInput.value = '';
       closeConfirmModal();
       renderItems();
       updateCartSummary();
@@ -372,7 +370,6 @@
       console.error(err);
     });
   }
-}
 
   renderItems();
 </script>
