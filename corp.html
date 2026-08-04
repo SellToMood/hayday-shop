@@ -24,7 +24,7 @@
     .tab-btn { background: #f1f5f9; border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #64748b; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: #22c55e; color: #ffffff; font-weight: 600; }
 
-    /* Container & Horizontal Item List (1 Column) */
+    /* Container & Item Rows */
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
     .item-list { display: flex; flex-direction: column; gap: 8px; }
 
@@ -33,7 +33,7 @@
     .item-row.selected { border-color: #22c55e; background-color: #f0fdf4; }
 
     .item-left { display: flex; align-items: center; gap: 12px; }
-    .item-img { width: 42px; height: 42px; object-fit: contain; border-radius: 8px; background: #fafafa; padding: 2px; border: 1px solid #f1f5f9; }
+    .item-img { width: 42px; height: 42px; object-fit: contain; }
     .item-info { display: flex; flex-direction: column; gap: 2px; }
     .item-badge { display: inline-block; background: #fef3c7; color: #d97706; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; width: fit-content; }
     .item-name { font-size: 15px; font-weight: 500; }
@@ -87,14 +87,13 @@
       <span>🌾 Hay Day Market</span>
     </div>
     <div class="filter-row">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 พิมพ์ชื่อวัตถุดิบ (เช่น อ้อย)..." oninput="renderItems()">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 พิมพ์ชื่อสินค้า (เช่น ขนมปัง, อ้อย)..." oninput="renderItems()">
       <input type="number" id="userLevel" class="level-input" placeholder="🎯 เลเวล" oninput="renderItems()">
     </div>
     
     <div class="category-tabs">
-      <button class="tab-btn active" onclick="switchCategory('crops', this)">🌱 ผัก/ผลไม้</button>
-      <button class="tab-btn" onclick="switchCategory('bakery', this)">🍿 ขนม / อาหาร (เร็วๆ นี้)</button>
-      <button class="tab-btn" onclick="switchCategory('feed', this)">🐮 อาหารสัตว์ (เร็วๆ นี้)</button>
+      <button class="tab-btn active" onclick="switchCategory('crops', this)">🌱 ผัก / ผลไม้</button>
+      <button class="tab-btn" onclick="switchCategory('bakery', this)">🍿 ขนม / อาหาร</button>
     </div>
   </div>
 
@@ -124,7 +123,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-title-box">
-          <img id="modalItemImg" class="modal-img" src="" alt="">
+          <img id="modalItemImg" src="" class="modal-img">
           <div class="modal-title" id="modalItemName">ชื่อสินค้า</div>
         </div>
         <button class="modal-close" onclick="closeModal()">✕</button>
@@ -156,66 +155,40 @@
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
+  const BASE_CDN = 'https://raw.githubusercontent.com/poom/hayday-assets/main/';
 
-  // รายการสินค้าพร้อม URL รูปภาพที่อัปเดตใหม่ให้แสดงผลครบทุกรูป 100%
-    // ใช้ ลิงก์รูปภาพจาก Wikimedia Commons ที่โหลดได้แน่นอน 100% ไม่โดนบล็อก
+  // ข้อมูลสินค้าผัก ผลไม้ และขนม/อาหาร พร้อม URL รูป PNG จาก GitHub CDN
   const itemsData = [
-    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_crop_wheat_nonshore_as3.png/120px-Eq_it-na_crop_wheat_nonshore_as3.png" },
-    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Hayday_corn.png/120px-Hayday_corn.png" },
-    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Soybean_HD.png/120px-Soybean_HD.png" },
-    { id: 4, name: "อ้อย", level: 7, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Sugarcane_HD.png/120px-Sugarcane_HD.png" },
-    { id: 5, name: "แครอท", level: 9, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Carrot_HD.png/120px-Carrot_HD.png" },
-    { id: 6, name: "คราม (ลาเวนเดอร์)", level: 13, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Indigo_HD.png/120px-Indigo_HD.png" },
-    { id: 7, name: "ฟักทอง", level: 15, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Pumpkin_HD.png/120px-Pumpkin_HD.png" },
-    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Apple_HD.png/120px-Apple_HD.png" },
-    { id: 9, name: "ฝ้าย", level: 18, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Cotton_HD.png/120px-Cotton_HD.png" },
-    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Raspberry_HD.png/120px-Raspberry_HD.png" },
-    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Cherry_HD.png/120px-Cherry_HD.png" },
-    { id: 12, name: "พริก", level: 25, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Chili_Pepper_HD.png/120px-Chili_Pepper_HD.png" },
-    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Blackberry_HD.png/120px-Blackberry_HD.png" },
-    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Tomato_HD.png/120px-Tomato_HD.png" },
-    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Strawberry_HD.png/120px-Strawberry_HD.png" },
-    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Potato_HD.png/120px-Potato_HD.png" },
-    { id: 17, name: "โกโก้", level: 36, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Cacao_HD.png/120px-Cacao_HD.png" },
-    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Coffee_Bean_HD.png/120px-Coffee_Bean_HD.png" },
-    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Asparagus_HD.png/120px-Asparagus_HD.png" },
-    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Peanuts_in_Pod_HD.png/120px-Peanuts_in_Pod_HD.png" },
-    { id: 21, name: "สับปะรด", level: 52, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pineapple_HD.png/120px-Pineapple_HD.png" },
-    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Lily_HD.png/120px-Lily_HD.png" },
-    { id: 23, name: "งา", level: 56, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Sesame_HD.png/120px-Sesame_HD.png" },
-    { id: 24, name: "มะกอก", level: 57, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Olive_HD.png/120px-Olive_HD.png" },
-    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Lettuce_HD.png/120px-Lettuce_HD.png" },
-    { id: 26, name: "กระเทียม", level: 60, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Garlic_HD.png/120px-Garlic_HD.png" },
-    { id: 27, name: "ดอกทานตะวัน", level: 63, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Sunflower_HD.png/120px-Sunflower_HD.png" },
-    { id: 28, name: "กะหล่ำปลีม่วง", level: 65, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Cabbage_HD.png/120px-Cabbage_HD.png" },
-    { id: 29, name: "เลมอน", level: 66, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Lemon_HD.png/120px-Lemon_HD.png" },
-    { id: 30, name: "หอมหัวใหญ่", level: 68, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Onion_HD.png/120px-Onion_HD.png" },
-    { id: 31, name: "แตงกวา", level: 70, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Cucumber_HD.png/120px-Cucumber_HD.png" },
-    { id: 32, name: "ส้ม", level: 71, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Orange_HD.png/120px-Orange_HD.png" },
-    { id: 33, name: "บีทรูท", level: 72, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Beetroot_HD.png/120px-Beetroot_HD.png" },
-    { id: 34, name: "พริกหวาน", level: 74, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Bell_Pepper_HD.png/120px-Bell_Pepper_HD.png" },
-    { id: 35, name: "พีช", level: 76, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Peach_HD.png/120px-Peach_HD.png" },
-    { id: 36, name: "ขิง", level: 78, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Ginger_HD.png/120px-Ginger_HD.png" },
-    { id: 37, name: "ใบชา", level: 80, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Tea_Leaves_HD.png/120px-Tea_Leaves_HD.png" },
-    { id: 38, name: "ดอกโบตั๋น", level: 82, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Peony_HD.png/120px-Peony_HD.png" },
-    { id: 39, name: "บรอกโคลี", level: 83, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Broccoli_HD.png/120px-Broccoli_HD.png" },
-    { id: 40, name: "องุ่น", level: 84, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Grapes_HD.png/120px-Grapes_HD.png" },
-    { id: 41, name: "ขึ้นฉ่าย", level: 85, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Celery_HD.png/120px-Celery_HD.png" },
-    { id: 42, name: "กล้วย", level: 88, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Banana_HD.png/120px-Banana_HD.png" },
-    { id: 43, name: "เสาวรส", level: 88, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Passion_Fruit_HD.png/120px-Passion_Fruit_HD.png" },
-    { id: 44, name: "เห็ด", level: 89, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Mushroom_HD.png/120px-Mushroom_HD.png" },
-    { id: 45, name: "มะเขือยาว", level: 90, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Eggplant_HD.png/120px-Eggplant_HD.png" },
-    { id: 46, name: "แตงโม", level: 92, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Watermelon_HD.png/120px-Watermelon_HD.png" },
-    { id: 47, name: "พลับ", level: 94, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Plum_HD.png/120px-Plum_HD.png" },
-    { id: 48, name: "ดินเหนียว", level: 94, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Clay_HD.png/120px-Clay_HD.png" },
-    { id: 49, name: "ถั่วลูกไก่", level: 95, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Chickpea_HD.png/120px-Chickpea_HD.png" },
-    { id: 50, name: "มะม่วง", level: 97, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mango_HD.png/120px-Mango_HD.png" },
-    { id: 51, name: "มะพร้าว", level: 101, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Coconut_HD.png/120px-Coconut_HD.png" },
-    { id: 52, name: "ฝรั่ง", level: 104, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Guava_HD.png/120px-Guava_HD.png" },
-    { id: 53, name: "ทับทิม", level: 107, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pomegranate_HD.png/120px-Pomegranate_HD.png" },
-    { id: 54, name: "ข้าวโอ๊ต", level: 119, category: "crops", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Oats_HD.png/120px-Oats_HD.png" }
-  ];
+    // --- 🌾 ผัก / ผลไม้ (Crops) ---
+    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: BASE_CDN + "crops/wheat.png" },
+    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: BASE_CDN + "crops/corn.png" },
+    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: BASE_CDN + "crops/soybean.png" },
+    { id: 4, name: "อ้อย", level: 7, category: "crops", img: BASE_CDN + "crops/sugarcane.png" },
+    { id: 5, name: "แครอท", level: 9, category: "crops", img: BASE_CDN + "crops/carrot.png" },
+    { id: 6, name: "คราม (ลาเวนเดอร์)", level: 13, category: "crops", img: BASE_CDN + "crops/indigo.png" },
+    { id: 7, name: "ฟักทอง", level: 15, category: "crops", img: BASE_CDN + "crops/pumpkin.png" },
+    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", img: BASE_CDN + "crops/apple.png" },
+    { id: 9, name: "ฝ้าย", level: 18, category: "crops", img: BASE_CDN + "crops/cotton.png" },
+    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", img: BASE_CDN + "crops/raspberry.png" },
+    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", img: BASE_CDN + "crops/cherry.png" },
+    { id: 12, name: "พริก", level: 25, category: "crops", img: BASE_CDN + "crops/chili_pepper.png" },
+    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", img: BASE_CDN + "crops/blackberry.png" },
+    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", img: BASE_CDN + "crops/tomato.png" },
+    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", img: BASE_CDN + "crops/strawberry.png" },
+    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", img: BASE_CDN + "crops/potato.png" },
+    { id: 17, name: "โกโก้", level: 36, category: "crops", img: BASE_CDN + "crops/cacao.png" },
+    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", img: BASE_CDN + "crops/coffee_bean.png" },
 
+    // --- 🍿 ขนม / อาหาร (Bakery & Products) ---
+    { id: 101, name: "ขนมปัง", level: 2, category: "bakery", img: BASE_CDN + "products/bread.png" },
+    { id: 102, name: "คุกกี้", level: 10, category: "bakery", img: BASE_CDN + "products/cookie.png" },
+    { id: 103, name: "เค้กครีม", level: 13, category: "bakery", img: BASE_CDN + "products/cream_cake.png" },
+    { id: 104, name: "ป๊อบคอร์น", level: 8, category: "bakery", img: BASE_CDN + "products/popcorn.png" },
+    { id: 105, name: "พายแอปเปิ้ล", level: 18, category: "bakery", img: BASE_CDN + "products/apple_pie.png" },
+    { id: 106, name: "พายเนื้อ", level: 18, category: "bakery", img: BASE_CDN + "products/bacon_pie.png" },
+    { id: 107, name: "มัฟฟินบลูเบอร์รี่", level: 19, category: "bakery", img: BASE_CDN + "products/muffin.png" },
+    { id: 108, name: "พิซซ่า", level: 33, category: "bakery", img: BASE_CDN + "products/pizza.png" }
+  ];
 
   let cart = {}; 
   let currentCategory = 'crops';
@@ -229,7 +202,7 @@
     return (hundreds * 7) + (tens * 1);
   }
 
-  // Render แถวรายการแนวนอนพร้อมรูปภาพ
+  // Render แถวรายการ
   function renderItems() {
     const list = document.getElementById('itemList');
     list.innerHTML = '';
@@ -257,7 +230,7 @@
 
       row.innerHTML = `
         <div class="item-left">
-          <img class="item-img" src="${item.img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/40'">
+          <img src="${item.img}" class="item-img" alt="${item.name}" onerror="this.src='https://raw.githubusercontent.com/poom/hayday-assets/main/crops/wheat.png'">
           <div class="item-info">
             <span class="item-badge">Lv. ${item.level}</span>
             <span class="item-name">${item.name}</span>
@@ -299,7 +272,7 @@
     document.getElementById('customQtyInput').value = qty;
   }
 
-  // ตกลงเลือกจำนวน + ปัดเศษขึ้นทีละ 10
+  // ตกลงเลือกจำนวน
   function confirmQty() {
     let inputVal = parseInt(document.getElementById('customQtyInput').value) || 0;
 
