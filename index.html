@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hay Day Shop - ศูนย์รวมบริการไอเทม</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+      margin: 0; 
+      padding: 20px; 
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .main-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 450px;
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      color: #78350f;
+      font-size: 24px;
+      margin: 0 0 8px 0;
+    }
+    p.subtitle {
+      color: #92400e;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    .menu-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .menu-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .menu-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .menu-icon {
+      font-size: 24px;
+    }
+    
+    /* สไตล์แต่ละปุ่ม */
+    .btn-bakery {
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #fde68a;
+    }
+    .btn-upgrade {
+      background: #dcfce7;
+      color: #166534;
+      border: 2px solid #bbf7d0;
+    }
+    .btn-disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      border: 2px solid #e5e7eb;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #9ca3af;
+      color: white;
+    }
+    .arrow {
+      font-size: 18px;
+    }
+    .footer {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #b45309;
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-card">
+  <div class="logo">🌾</div>
+  <h1>Hay Day Shop</h1>
+  <p class="subtitle">เลือกบริการที่คุณต้องการสั่งซื้อได้เลยครับ</p>
+
+  <div class="menu-container">
+    
+    <!-- ปุ่ม 1: สั่งซื้อขนม -->
+    <a href="snack.html" class="menu-btn btn-bakery">
+      <div class="menu-left">
+        <span class="menu-icon">🍞</span>
+        <span>สั่งซื้อขนม / อาหาร</span>
+      </div>
+      <span class="arrow">➔</span>
+    </a>
+
+    <!-- ปุ่ม 2: สั่งซื้อของอัปเกรด -->
+    <a href="upgrade.html" class="menu-btn btn-upgrade">
+      <div class="menu-left">
+        <span class="menu-icon">🚜</span>
+        <span>สั่งซื้อของอัปเกรด</span>
+      </div>
+      <span class="arrow">➔</span>
+    </a>
+
+    <!-- ปุ่ม 3: เผื่อไว้ในอนาคต 1 -->
+    <a href="#" class="menu-btn btn-disabled">
+      <div class="menu-left">
+        <span class="menu-icon">💎</span>
+        <span>บริการเติมเพชร</span>
+      </div>
+      <span class="badge">เร็วๆ นี้</span>
+    </a>
+
+    <!-- ปุ่ม 4: เผื่อไว้ในอนาคต 2 -->
+    <a href="#" class="menu-btn btn-disabled">
+      <div class="menu-left">
+        <span class="menu-icon">🎁</span>
+        <span>แพ็กเกจพิเศษ</span>
+      </div>
+      <span class="badge">เร็วๆ นี้</span>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    จัดส่งไว ปลอดภัย รับประกันออเดอร์ 100%
+  </div>
+</div>
+
+</body>
+</html>
