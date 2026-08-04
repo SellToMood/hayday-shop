@@ -59,7 +59,7 @@
     land: { name: "ขยายพื้นที่", items: ["หมุด", "โฉนด", "ค้อน"], mixPrice: 12 }
   };
 
-  // ⚠️ วาง URL ของ Google Apps Script ของคุณลงในอัญประกาศด้านล่างนี้
+  // ⚠️ วาง URL ของ Google Apps Script ของคุณตรงนี้
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
   function updateOptions() {
@@ -90,6 +90,116 @@
         html += `<option value="${item}">${item} ล้วน</option>`;
       });
       html += `</select>`;
+    }
+
+    container.innerHTML = html;
+    document.getElementById('totalPrice').innerText = `ราคารวม: ${price} บาท`;
+  }
+
+  function calculateCustom() {
+    const catKey = document.getElementById('category').value;
+    const cat = categories[catKey];
+    let totalQty = 0;
+    cat.items.forEach((_, idx) => {
+      const val = parseInt(document.getElementById(`item_${idx}`)?.value || 0);
+      totalQty += (isNaN(val) ? 0 : val);
+    });
+    const countText = document.getElementById('customCount');
+    if (countText) {
+      countText.innerText = `รวมปัจจุบัน: ${totalQty} / 89 ชิ้น`;
+      countText.style.color = (totalQty === 89) ? 'green' : 'red';
+    }
+  }
+
+  function submitOrder() {
+    const btn = document.querySelector('.btn-submit');
+    const catKey = document.getElementById('category').value;
+    const buyType = document.getElementById('buyType').value;
+    const tagInput = document.getElementById('playerTag');
+    const tag = tagInput.value.trim();
+    const cat = categories[catKey];
+
+    if (!tag) {
+      alert('กรุณากรอก Tag ในเกมด้วยครับ');
+      tagInput.focus();
+      return;
+    }
+
+    let itemsDetail = '';
+    let price = 0;
+
+    if (buyType === 'mix') {
+      price = cat.mixPrice;
+      itemsDetail = `${cat.name} (คละ 89 ชิ้น)`;
+    } 
+    else if (buyType === 'custom') {
+      price = 15;
+      let totalQty = 0;
+      let details = [];
+      cat.items.forEach((item, idx) => {
+        const qty = parseInt(document.getElementById(`item_${idx}`)?.value || 0);
+        if (!isNaN(qty) && qty > 0) {
+          totalQty += qty;
+          details.push(`${item} x${qty}`);
+        }
+      });
+
+      if (totalQty !== 89) {
+        alert('จำนวนไอเทมรวมกันต้องเท่ากับ 89 ชิ้นพอดีครับ! (ตอนนี้ได้ ' + totalQty + ' ชิ้น)');
+        return;
+      }
+      itemsDetail = `${cat.name} (เลือกเอง):\n` + details.join('\n');
+    } 
+    else if (buyType === 'single') {
+      price = 20;
+      const selectedItem = document.getElementById('singleItemSelect').value;
+      itemsDetail = `${cat.name} (${selectedItem} ล้วน 89 ชิ้น)`;
+    }
+
+    // ⏳ 1. ดีเลย์ปุ่มกด: ปิดใช้งานปุ่มชั่วคราว เพื่อป้องกันการกดสั่งซ้ำ
+    btn.disabled = true;
+    const originalBtnText = btn.innerText;
+    btn.innerText = '⏳ กำลังส่งออเดอร์...';
+    btn.style.backgroundColor = '#6c757d';
+
+    const orderData = {
+      orderId: '#UP-' + Math.floor(1000 + Math.random() * 9000),
+      tag: tag,
+      items: itemsDetail,
+      total: price
+    };
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    })
+    .then(() => {
+      alert('ส่งออเดอร์เรียบร้อยแล้ว!');
+      
+      // 🔄 2. ล้างค่า Tag และรีเซ็ตฟอร์ม
+      tagInput.value = '';
+      updateOptions(); // รีเซ็ตฟอร์มเลือกจำนวนไอเทม
+      
+      // หน่วงเวลา 3 วินาทีก่อนให้เปิดใช้งานปุ่มกดใหม่
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerText = originalBtnText;
+        btn.style.backgroundColor = '#28a745';
+      }, 3000);
+    })
+    .catch(err => {
+      alert('เกิดข้อผิดพลาด: ' + err);
+      btn.disabled = false;
+      btn.innerText = originalBtnText;
+      btn.style.backgroundColor = '#28a745';
+    });
+  }
+
+  // เรียกใช้งานครั้งแรกเมื่อโหลดหน้า
+  updateOptions();
+</script>`;
     }
 
     container.innerHTML = html;
