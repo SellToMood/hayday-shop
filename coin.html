@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เติมเหรียญ - Hay Day</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+    body { background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; margin-top: 0; }
+    
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    
+    .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+    .preset-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 13px; }
+    .preset-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #cbd5e1; }
+    .preset-btn.active { background: #22c55e; color: white; border-color: #16a34a; font-weight: bold; }
+
+    .note-text { font-size: 12px; color: #ef4444; margin-top: 4px; }
+    .price-box { font-size: 20px; font-weight: bold; color: #d9534f; text-align: center; margin: 15px 0; background: #fef2f2; padding: 10px; border-radius: 8px; }
+    
+    .btn-submit { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+
+    /* Modal Styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+    .modal-content { background: #ffffff; width: 100%; max-width: 450px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
+    .order-result-box { background: #f0fdf4; border: 2px dashed #22c55e; border-radius: 12px; padding: 15px; margin: 15px 0; }
+    .order-id-display { font-size: 22px; font-weight: bold; color: #16a34a; letter-spacing: 1px; margin-bottom: 8px; }
+    .btn-copy { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    .btn-confirm { width: 100%; background: #22c55e; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🪙 สั่งซื้อเหรียญ (Coins)</h2>
+
+  <div class="form-group">
+    <label>1. กรอกเลเวลของคุณ</label>
+    <input type="number" id="playerLevel" placeholder="เช่น 25" min="1" oninput="onLevelChange()">
+  </div>
+
+  <div class="form-group">
+    <label>2. เลือกจำนวนเหรียญ</label>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="selectPreset(100000, this)">1 แสน</button>
+      <button class="preset-btn" onclick="selectPreset(500000, this)">5 แสน</button>
+      <button class="preset-btn" onclick="selectPreset(1000000, this)">1 ล้าน</button>
+      <button class="preset-btn" id="btn3m" onclick="selectPreset(3000000, this)">3 ล้าน</button>
+      <button class="preset-btn" id="btn5m" onclick="selectPreset(5000000, this)">5 ล้าน</button>
+      <button class="preset-btn" id="btn10m" onclick="selectPreset(10000000, this)">10 ล้าน</button>
+    </div>
+    
+    <label style="font-size: 13px; margin-top: 8px;">หรือระบุจำนวนเอง (หลักแสน/ล้านเท่านั้น):</label>
+    <input type="number" id="coinAmount" placeholder="เช่น 500000" step="100000" oninput="onCustomAmountChange()">
+    <div class="note-text">* รับเฉพาะจำนวนเต็มหลักแสนขึ้นไปเท่านั้น (เช่น 200,000, 1,500,000)</div>
+  </div>
+
+  <div class="form-group">
+    <label>3. Tag ในเกม / ชื่อในเกม</label>
+    <input type="text" id="playerTag" placeholder="เช่น #12345678">
+  </div>
+
+  <div class="price-box" id="totalPrice">ราคารวม: 0 บาท</div>
+
+  <button class="btn-submit" onclick="submitOrder()">ส่งออเดอร์</button>
+</div>
+
+<!-- Modal: สั่งซื้อสำเร็จ + คัดลอกเลขออเดอร์ -->
+<div class="modal-overlay" id="successOrderModal">
+  <div class="modal-content">
+    <h3 style="margin:0; color:#16a34a;">🎉 สั่งซื้อสำเร็จ!</h3>
+    <p style="font-size:14px; color:#64748b; margin-top:6px;">กรุณากดคัดลอกเลขออเดอร์เพื่อแจ้งแอดมิน</p>
+    
+    <div class="order-result-box">
+      <div class="order-id-display" id="displayOrderId">#COIN-0000</div>
+      <button class="btn-copy" id="btnCopyOrder" onclick="copyOrderId()">📋 คัดลอกเลขออเดอร์</button>
+    </div>
+
+    <button class="btn-confirm" onclick="closeSuccessModal()">เรียบร้อย</button>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
+  let currentOrderId = '';
+  let calculatedPrice = 0;
+
+  // ฟังก์ชันคำนวณราคาเหรียญตามเลเวล
+  function calculateCoinPrice(level, amount) {
+    if (!level || !amount || amount < 100000) return 0;
+
+    let price = 0;
+
+    // --- ช่วงเลเวล 40+ ---
+    if (level >= 40) {
+      let remaining = amount;
+      const millions5 = Math.floor(remaining / 5000000);
+      price += millions5 * 120;
+      remaining %= 5000000;
+
+      const millions1 = Math.floor(remaining / 1000000);
+      price += millions1 * 25;
+      remaining %= 1000000;
+
+      const lakhs5 = Math.floor(remaining / 500000);
+      price += lakhs5 * 20;
+      remaining %= 500000;
+
+      const lakhs1 = Math.floor(remaining / 100000);
+      price += lakhs1 * 7;
+    }
+    // --- ช่วงเลเวล 25-39 ---
+    else if (level >= 25 && level <= 39) {
+      let remaining = amount;
+      const millions1 = Math.floor(remaining / 1000000);
+      price += millions1 * 50;
+      remaining %= 1000000;
+
+      const lakhs5 = Math.floor(remaining / 500000);
+      price += lakhs5 * 30;
+      remaining %= 500000;
+
+      const lakhs1 = Math.floor(remaining / 100000);
+      price += lakhs1 * 8;
+    }
+    // --- ช่วงเลเวล 1-24 ---
+    else if (level >= 1 && level <= 24) {
+      let remaining = amount;
+      const millions1 = Math.floor(remaining / 1000000);
+      price += millions1 * 80;
+      remaining %= 1000000;
+
+      const lakhs1 = Math.floor(remaining / 100000);
+      price += lakhs1 * 10;
+    }
+
+    return price;
+  }
+
+  function updatePriceDisplay() {
+    const level = parseInt(document.getElementById('playerLevel').value) || 0;
+    const amount = parseInt(document.getElementById('coinAmount').value) || 0;
+
+    // ตรวจสอบลิมิตเลเวล
+    if (level >= 1 && level <= 24 && amount > 1000000) {
+      alert('เลเวล 1-24 เติมได้สูงสุด 1,000,000 เหรียญ (1 ล้าน) ครับ');
+      document.getElementById('coinAmount').value = 1000000;
+      return updatePriceDisplay();
+    } else if (level >= 25 && amount > 10000000) {
+      alert('เลเวล 25 ขึ้นไปเติมได้สูงสุด 10,000,000 เหรียญ (10 ล้าน) ครับ');
+      document.getElementById('coinAmount').value = 10000000;
+      return updatePriceDisplay();
+    }
+
+    calculatedPrice = calculateCoinPrice(level, amount);
+    document.getElementById('totalPrice').innerText = `ราคารวม: ${calculatedPrice.toLocaleString()} บาท`;
+  }
+
+  function onLevelChange() {
+    const level = parseInt(document.getElementById('playerLevel').value) || 0;
+    
+    // ล็อก/ปลดล็อก ปุ่ม preset ตามระดับเลเวล
+    const isLowLevel = level >= 1 && level <= 24;
+    document.getElementById('btn3m').disabled = isLowLevel;
+    document.getElementById('btn5m').disabled = isLowLevel;
+    document.getElementById('btn10m').disabled = isLowLevel;
+
+    updatePriceDisplay();
+  }
+
+  function selectPreset(amount, btn) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('coinAmount').value = amount;
+    updatePriceDisplay();
+  }
+
+  function onCustomAmountChange() {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    updatePriceDisplay();
+  }
+
+  function submitOrder() {
+    const level = parseInt(document.getElementById('playerLevel').value);
+    const amount = parseInt(document.getElementById('coinAmount').value);
+    const tagInput = document.getElementById('playerTag');
+    const tag = tagInput.value.trim();
+
+    if (!level || level < 1) {
+      return alert('กรุณากรอกเลเวลให้ถูกต้องด้วยครับ');
+    }
+    if (!amount || amount < 100000 || amount % 100000 !== 0) {
+      return alert('กรุณาเลือกหรือระบุจำนวนเหรียญให้ถูกต้อง (รับขั้นต่ำ 100,000 และเป็นหลักแสนเท่านั้น)');
+    }
+    if (!tag) {
+      tagInput.focus();
+      return alert('กรุณากรอก Tag หรือชื่อในเกมด้วยครับ');
+    }
+
+    const btn = document.querySelector('.btn-submit');
+    btn.disabled = true;
+    const originalBtnText = btn.innerText;
+    btn.innerText = '⏳ กำลังส่งออเดอร์...';
+    btn.style.backgroundColor = '#6c757d';
+
+    currentOrderId = '#COIN-' + Math.floor(1000 + Math.random() * 9000);
+
+    const orderData = {
+      orderId: currentOrderId,
+      tag: `${tag} (Lv.${level})`,
+      items: `เติมเหรียญจำนวน ${amount.toLocaleString()} Coins`,
+      total: calculatedPrice
+    };
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    })
+    .then(() => {
+      setTimeout(() => {
+        document.getElementById('displayOrderId').innerText = currentOrderId;
+        document.getElementById('successOrderModal').style.display = 'flex';
+
+        // รีเซ็ตค่า
+        tagInput.value = '';
+        document.getElementById('coinAmount').value = '';
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        updatePriceDisplay();
+
+        btn.disabled = false;
+        btn.innerText = originalBtnText;
+        btn.style.backgroundColor = '#28a745';
+      }, 1000);
+    })
+    .catch(err => {
+      alert('เกิดข้อผิดพลาด: ' + err);
+      btn.disabled = false;
+      btn.innerText = originalBtnText;
+      btn.style.backgroundColor = '#28a745';
+    });
+  }
+
+  function copyOrderId() {
+    navigator.clipboard.writeText(currentOrderId).then(() => {
+      const btn = document.getElementById('btnCopyOrder');
+      btn.innerText = '✅ คัดลอกสำเร็จ!';
+      btn.style.background = '#22c55e';
+      
+      setTimeout(() => {
+        btn.innerText = '📋 คัดลอกเลขออเดอร์';
+        btn.style.background = '#0284c7';
+      }, 2000);
+    }).catch(() => {
+      alert('ไม่สามารถคัดลอกได้อัตโนมัติ: ' + currentOrderId);
+    });
+  }
+
+  function closeSuccessModal() {
+    document.getElementById('successOrderModal').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
