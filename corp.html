@@ -154,39 +154,61 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
   // พิกัดรูปใน food.png คำนวณตาม col (0-15) และ row (0-11)
+    // ข้อมูลสินค้า ปรับขนาดและพิกัดใหม่ให้ตรงกลางพอดี
   const itemsData = [
-    // แถวที่ 1
-    { id: 1, name: "ไข่ไก่", level: 1, category: "crops", col: 0, row: 0 },
-    { id: 2, name: "ขนมปัง", level: 2, category: "bakery", col: 1, row: 0 },
-    { id: 3, name: "นมสด", level: 6, category: "crops", col: 2, row: 0 },
-    { id: 4, name: "ครีม", level: 6, category: "bakery", col: 3, row: 0 },
-    { id: 5, name: "เนย", level: 7, category: "bakery", col: 4, row: 0 },
-    { id: 6, name: "น้ำตาลทรายแดง", level: 7, category: "bakery", col: 5, row: 0 },
-    { id: 7, name: "ป๊อบคอร์น", level: 8, category: "bakery", col: 6, row: 0 },
-    { id: 8, name: "เนยแข็ง", level: 9, category: "bakery", col: 7, row: 0 },
-    { id: 9, name: "พายแพนเค้ก", level: 9, category: "bakery", col: 8, row: 0 },
-    { id: 10, name: "เบคอน", level: 10, category: "crops", col: 9, row: 0 },
-    { id: 11, name: "คุกกี้", level: 10, category: "bakery", col: 10, row: 0 },
-    { id: 12, name: "ไข่ดาวเบคอน", level: 11, category: "bakery", col: 11, row: 0 },
-    { id: 13, name: "ชีส", level: 12, category: "bakery", col: 12, row: 0 },
-    { id: 14, name: "น้ำตาลทรายขาว", level: 13, category: "bakery", col: 13, row: 0 },
-    { id: 15, name: "พายแครอท", level: 14, category: "bakery", col: 14, row: 0 },
-    { id: 16, name: "พายฟักทอง", level: 15, category: "bakery", col: 15, row: 0 },
+    // --- 🌱 ผัก / ผลไม้ (crops_sheet.png) ---
+    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "0.2% 1.8%" },
+    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "8.4% 1.8%" },
+    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "16.7% 1.8%" },
+    { id: 4, name: "อ้อย", level: 7, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "25.0% 1.8%" },
+    { id: 5, name: "แครอท", level: 9, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "33.3% 1.8%" },
+    { id: 6, name: "คราม", level: 13, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "41.6% 1.8%" },
+    { id: 7, name: "ฟักทอง", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "49.9% 1.8%" },
+    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "58.2% 1.8%" },
+    { id: 9, name: "ฝ้าย", level: 18, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "66.5% 1.8%" },
+    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "74.8% 1.8%" },
+    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "83.1% 1.8%" },
+    { id: 12, name: "พริก", level: 25, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "91.4% 1.8%" },
+    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "99.8% 1.8%" },
+    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "0.2% 21.0%" },
+    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "8.4% 21.0%" },
+    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "16.7% 21.0%" },
+    { id: 17, name: "โกโก้", level: 36, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "25.0% 21.0%" },
+    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "33.3% 21.0%" },
+    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "41.6% 21.0%" },
+    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "49.9% 21.0%" },
+    { id: 21, name: "สับปะรด", level: 52, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "58.2% 21.0%" },
+    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "66.5% 21.0%" },
+    { id: 23, name: "ข้าว", level: 56, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "74.8% 21.0%" },
+    { id: 24, name: "มะกอก", level: 57, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "83.1% 21.0%" },
+    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "91.4% 21.0%" },
+    { id: 26, name: "กระเทียม", level: 60, category: "crops", sheet: "crops_sheet.png", size: "1400% auto", pos: "99.8% 21.0%" },
 
-    // แถวที่ 2
-    { id: 17, name: "ขนมปังข้าวโพด", level: 16, category: "bakery", col: 2, row: 1 },
-    { id: 18, name: "พายแอปเปิ้ล", level: 18, category: "bakery", col: 3, row: 1 },
-    { id: 19, name: "เบอร์เกอร์", level: 18, category: "bakery", col: 5, row: 1 },
-    { id: 20, name: "เค้กเบอร์รี่", level: 23, category: "bakery", col: 12, row: 1 },
-    { id: 21, name: "เค้กช็อกโกแลต", level: 23, category: "bakery", col: 13, row: 1 },
-    { id: 22, name: "ชีสเค้ก", level: 24, category: "bakery", col: 14, row: 1 },
+    // --- 🍿 ขนม / อาหาร (products_sheet_1.png) ---
+    { id: 101, name: "ขนมปัง", level: 2, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "0.5% 1.0%" },
+    { id: 102, name: "คุกกี้", level: 10, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "54.5% 1.0%" },
+    { id: 103, name: "พายแอปเปิ้ล", level: 14, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "54.5% 10.0%" },
+    { id: 104, name: "เบอร์เกอร์", level: 18, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "27.2% 10.0%" },
+    { id: 105, name: "มัฟฟิน", level: 19, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "36.3% 10.0%" },
+    { id: 106, name: "เค้กพิซซ่า", level: 33, category: "bakery", sheet: "products_sheet_1.png", size: "1350% auto", pos: "27.2% 30.0%" },
 
-    // แถวที่ 3 & 4 (สินค้าเพิ่มเติม)
-    { id: 23, name: "พิซซ่าถาด", level: 33, category: "bakery", col: 0, row: 3 },
-    { id: 24, name: "ไอศกรีมวานิลลา", level: 29, category: "bakery", col: 9, row: 2 },
-    { id: 25, name: "ไอศกรีมสตรอว์เบอร์รี", level: 34, category: "bakery", col: 5, row: 3 },
-    { id: 26, name: "พิซซ่าซีฟู้ด", level: 45, category: "bakery", col: 12, row: 4 }
+    // --- 🍿 ขนม / อาหาร (products_sheet_2.png) ---
+    { id: 201, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "0.5% 1.0%" },
+    { id: 202, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "9.0% 1.0%" },
+    { id: 203, name: "หมวกปาร์ตี้", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "18.0% 1.0%" },
+    { id: 204, name: "แซนด์วิช", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "27.0% 1.0%" },
+    { id: 205, name: "ผ้าพันคอ", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "36.0% 1.0%" },
+    { id: 206, name: "น้ำส้ม", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "45.0% 1.0%" },
+    { id: 207, name: "ชานมร้อน", level: 72, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "63.0% 1.0%" },
+    { id: 208, name: "แยมผลไม้", level: 74, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "0.5% 32.0%" },
+    { id: 209, name: "สายไหม", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "36.0% 32.0%" },
+    { id: 210, name: "ฮอตดอก", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "45.0% 32.0%" },
+    { id: 211, name: "สลัด", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "54.0% 32.0%" },
+    { id: 212, name: "โดนัท", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "72.0% 32.0%" },
+    { id: 213, name: "ทาโก้", level: 77, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "90.0% 32.0%" },
+    { id: 214, name: "ช็อกโกแลตร้อน", level: 80, category: "bakery", sheet: "products_sheet_2.png", size: "1350% auto", pos: "27.0% 97.0%" }
   ];
+
 
   let cart = {}; 
   let currentCategory = 'bakery';
