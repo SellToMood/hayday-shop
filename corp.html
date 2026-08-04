@@ -31,7 +31,6 @@
 
     .item-left { display: flex; align-items: center; gap: 12px; }
     
-    /* แก้ไขการแสดงผลรูป WebP */
     .sprite-icon {
       width: 44px;
       height: 44px;
@@ -55,7 +54,7 @@
     .cart-total { font-size: 18px; font-weight: bold; color: #16a34a; }
     .btn-submit { background: #22c55e; color: #ffffff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
 
-    /* Modal Popup */
+    /* Modal Popup Styles */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
     .modal-content { background: #ffffff; width: 100%; max-width: 600px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 85vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -67,10 +66,15 @@
     .btn-clear { background: #fee2e2; color: #ef4444; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
     .btn-cancel { background: #f1f5f9; color: #475569; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
-    /* Order Summary Box */
+    /* Summary Box */
     .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 14px; max-height: 180px; overflow-y: auto; }
     .summary-item { display: flex; justify-content: space-between; margin-bottom: 6px; }
     .summary-total { border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-weight: bold; color: #16a34a; display: flex; justify-content: space-between; }
+
+    /* Order Result Box Style */
+    .order-result-box { background: #f0fdf4; border: 2px dashed #22c55e; border-radius: 12px; padding: 15px; text-align: center; margin: 15px 0; }
+    .order-id-display { font-size: 22px; font-weight: bold; color: #16a34a; letter-spacing: 1px; margin-bottom: 8px; }
+    .btn-copy { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -101,7 +105,7 @@
     </div>
   </div>
 
-  <!-- Modal 1: ป๊อปอัปเลือกจำนวน -->
+  <!-- Modal 1: เลือกจำนวน -->
   <div class="modal-overlay" id="qtyModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -126,7 +130,7 @@
     </div>
   </div>
 
-  <!-- Modal 2: ป๊อปอัปสรุปรายการ -->
+  <!-- Modal 2: สรุปและยืนยันสั่งซื้อ -->
   <div class="modal-overlay" id="confirmOrderModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -143,23 +147,34 @@
 
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeConfirmModal()">ย้อนกลับ</button>
-        <button class="btn-confirm" onclick="processFinalOrder()">ยืนยันสั่งซื้อ</button>
+        <button class="btn-confirm" id="btnFinalSubmit" onclick="processFinalOrder()">ยืนยันสั่งซื้อ</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: ป๊อปอัปแจ้งผลออเดอร์ + ปุ่มกดคัดลอก -->
+  <div class="modal-overlay" id="successOrderModal">
+    <div class="modal-content" style="text-align: center;">
+      <h3 style="margin:0; color:#16a3a4;">🎉 สั่งซื้อสำเร็จ!</h3>
+      <p style="font-size:14px; color:#64748b; margin-top:6px;">กรุณากดคัดลอกเลขออเดอร์เพื่อแจ้งแอดมิน</p>
+      
+      <div class="order-result-box">
+        <div class="order-id-display" id="displayOrderId">#CROP-0000</div>
+        <button class="btn-copy" id="btnCopyOrder" onclick="copyOrderId()">📋 คัดลอกเลขออเดอร์</button>
+      </div>
+
+      <button class="btn-confirm" style="width:100%;" onclick="closeSuccessModal()">เรียบร้อย</button>
     </div>
   </div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
-  // รายการสินค้าทั้งหมด
   const itemsData = [
-    // --- หมวดผัก / ผลไม้ ---
     { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: "images/item1.webp" },
     { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: "images/item2.webp" },
     { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: "images/item3.webp" },
     { id: 4, name: "อ้อย", level: 7, category: "crops", img: "images/item4.webp" },
-
-    // --- หมวดขนม / อาหาร ---
     { id: 101, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", img: "images/item39.webp" },
     { id: 102, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", img: "images/item40.webp" },
     { id: 103, name: "หมวกปาร์ตี้", level: 70, category: "bakery", img: "images/item41.webp" }
@@ -168,6 +183,7 @@
   let cart = {}; 
   let currentCategory = 'crops';
   let activeItemId = null;
+  let currentOrderId = '';
 
   function calculateCropPrice(qty) {
     const hundreds = Math.floor(qty / 100);
@@ -201,7 +217,6 @@
       row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
       row.onclick = () => openModal(item);
 
-      // แก้ไขให้ดึงรูปภาพจากแท็ก <img> โดยตรง
       row.innerHTML = `
         <div class="item-left">
           <img src="${item.img}" class="sprite-icon" alt="${item.name}">
@@ -315,6 +330,10 @@
     document.getElementById('confirmOrderModal').style.display = 'none';
   }
 
+  function closeSuccessModal() {
+    document.getElementById('successOrderModal').style.display = 'none';
+  }
+
   function processFinalOrder() {
     const tagInput = document.getElementById('finalPlayerTag');
     const tag = tagInput.value.trim();
@@ -322,6 +341,10 @@
     if (!tag) {
       return alert('กรุณากรอก Tag หรือชื่อในเกมด้วยครับ');
     }
+
+    const submitBtn = document.getElementById('btnFinalSubmit');
+    submitBtn.innerText = 'กำลังส่งข้อมูล...';
+    submitBtn.disabled = true;
 
     let selectedList = [];
     let totalPrice = 0;
@@ -337,10 +360,10 @@
     });
 
     const userLv = document.getElementById('userLevel').value;
-    const generatedOrderId = '#CROP-' + Math.floor(1000 + Math.random() * 9000);
+    currentOrderId = '#CROP-' + Math.floor(1000 + Math.random() * 9000);
 
     const orderData = {
-      orderId: generatedOrderId,
+      orderId: currentOrderId,
       tag: `${tag} ${userLv ? '(Lv.' + userLv + ')' : ''}`,
       items: selectedList.join('\n'),
       total: totalPrice.toFixed(2)
@@ -352,22 +375,46 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     }).then(() => {
-      // คัดลอกเลขออเดอร์ลง Clipboard อัตโนมัติ
-      navigator.clipboard.writeText(generatedOrderId).then(() => {
-        alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}\n(คัดลอกเลขออเดอร์ลงคลิปบอร์ดแล้ว)`);
-      }).catch(() => {
-        alert(`ส่งข้อมูลเรียบร้อยครับ!\n\nเลขออเดอร์ของคุณคือ: ${generatedOrderId}`);
-      });
+      // 1. ตั้งเวลาดีเลย์ 3 วินาที (3000ms) ก่อนปิด Modal สรุปและแสดงผลลัพธ์
+      setTimeout(() => {
+        closeConfirmModal();
 
-      // เคลียร์ตะกร้าสินค้า และลบ Tag ออกจากช่องกรอก
-      cart = {};
-      tagInput.value = '';
-      closeConfirmModal();
-      renderItems();
-      updateCartSummary();
+        // แสดงหน้าต่างผลลัพธ์เลขออเดอร์
+        document.getElementById('displayOrderId').innerText = currentOrderId;
+        document.getElementById('successOrderModal').style.display = 'flex';
+
+        // 2. เคลียร์ตะกร้า และลบแท็กออกทันที
+        cart = {};
+        tagInput.value = ''; // ลบแท็กออก
+
+        submitBtn.innerText = 'ยืนยันสั่งซื้อ';
+        submitBtn.disabled = false;
+
+        renderItems();
+        updateCartSummary();
+      }, 3000);
+
     }).catch(err => {
       alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
       console.error(err);
+      submitBtn.innerText = 'ยืนยันสั่งซื้อ';
+      submitBtn.disabled = false;
+    });
+  }
+
+  // ฟังก์ชันสำหรับกดปุ่มคัดลอกเลขออเดอร์
+  function copyOrderId() {
+    navigator.clipboard.writeText(currentOrderId).then(() => {
+      const btn = document.getElementById('btnCopyOrder');
+      btn.innerText = '✅ คัดลอกสำเร็จ!';
+      btn.style.background = '#22c55e';
+      
+      setTimeout(() => {
+        btn.innerText = '📋 คัดลอกเลขออเดอร์';
+        btn.style.background = '#0284c7';
+      }, 2000);
+    }).catch(err => {
+      alert('ไม่สามารถคัดลอกได้อัตโนมัติ: ' + currentOrderId);
     });
   }
 
