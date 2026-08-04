@@ -49,7 +49,7 @@
     .item-action-text { font-size: 12px; color: #94a3b8; }
 
     /* Bottom Cart Bar */
-    .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 12px 20px; shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 100; }
+    .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 12px 20px; box-shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 100; }
     .cart-inner { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .cart-count { font-size: 12px; color: #64748b; display: block; }
     .cart-total { font-size: 18px; font-weight: bold; color: #16a34a; }
@@ -101,7 +101,7 @@
     </div>
   </div>
 
-  <!-- Modal 1: เลือกจำนวนสินค้า -->
+  <!-- Modal 1: ป๊อปอัปเลือกจำนวน -->
   <div class="modal-overlay" id="qtyModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -126,7 +126,7 @@
     </div>
   </div>
 
-  <!-- Modal 2: ยืนยันการสั่งซื้อ + กรอก Tag -->
+  <!-- Modal 2: ป๊อปอัปสรุปรายการ + พิมพ์ Tag และยืนยันการสั่งซื้อ -->
   <div class="modal-overlay" id="confirmOrderModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -134,12 +134,13 @@
         <button onclick="closeConfirmModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
       </div>
       
+      <!-- สรุปรายการสินค้า -->
       <div class="summary-box" id="orderSummaryBox"></div>
 
-      <!-- ช่องกรอก Tag บังคับระบุก่อนสั่งซื้อ -->
+      <!-- ช่องกรอก Tag -->
       <div style="margin-bottom: 10px;">
         <label style="display:block; font-size:14px; font-weight:600; margin-bottom:6px;">🏷️ กรอก Tag หรือชื่อในเกม <span style="color:#ef4444;">*</span></label>
-        <input type="text" id="finalPlayerTag" class="custom-qty-input" placeholder="เช่น #12345678 หรือ ชื่อในเกม" required>
+        <input type="text" id="finalPlayerTag" class="custom-qty-input" placeholder="เช่น #12345678 หรือ ชื่อในเกม">
       </div>
 
       <div class="modal-actions">
@@ -152,44 +153,113 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
-  /* 
-    กำหนดขนาดไอคอนต่อบล็อก (Icon Size) 
-    ตัวอย่าง: ภาพสไปรท์มีขนาดช่องละ 44x44 pixel
-  */
-  const ICON_SIZE = 44; 
+  // 1. ผัก / ผลไม้ (38 ชิ้น)
+  const cropsData = [
+    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "0% 0.3%" },
+    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "7.69% 0.3%" },
+    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "15.38% 0.3%" },
+    { id: 4, name: "อ้อย", level: 7, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "23.07% 0.3%" },
+    { id: 5, name: "แครอท", level: 9, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "30.76% 0.3%" },
+    { id: 6, name: "คราม", level: 13, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "38.46% 0.3%" },
+    { id: 7, name: "ฟักทอง", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "46.15% 0.3%" },
+    { id: 8, name: "แอปเปิ้ล", level: 15, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "53.84% 0.3%" },
+    { id: 9, name: "ฝ้าย", level: 18, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "61.53% 0.3%" },
+    { id: 10, name: "ราสเบอร์รี่", level: 19, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "69.23% 0.3%" },
+    { id: 11, name: "เชอร์รี่", level: 22, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "76.92% 0.3%" },
+    { id: 12, name: "พริก", level: 25, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "84.61% 0.3%" },
+    { id: 13, name: "แบล็กเบอร์รี่", level: 26, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "92.30% 0.3%" },
+    { id: 14, name: "มะเขือเทศ", level: 30, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "100% 0.3%" },
+    { id: 15, name: "สตรอว์เบอร์รี", level: 34, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "0% 30.2%" },
+    { id: 16, name: "มันฝรั่ง", level: 35, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "7.69% 30.2%" },
+    { id: 17, name: "โกโก้", level: 36, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "15.38% 30.2%" },
+    { id: 18, name: "เมล็ดกาแฟ", level: 42, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "23.07% 30.2%" },
+    { id: 19, name: "หน่อไม้ฝรั่ง", level: 49, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "30.76% 30.2%" },
+    { id: 20, name: "ถั่วลิสง", level: 50, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "38.46% 30.2%" },
+    { id: 21, name: "สับปะรด", level: 52, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "46.15% 30.2%" },
+    { id: 22, name: "ดอกลิลลี่", level: 53, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "53.84% 30.2%" },
+    { id: 23, name: "ข้าว", level: 56, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "61.53% 30.2%" },
+    { id: 24, name: "มะกอก", level: 57, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "69.23% 30.2%" },
+    { id: 25, name: "ผักกาดหอม", level: 58, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "76.92% 30.2%" },
+    { id: 26, name: "กระเทียม", level: 60, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "84.61% 30.2%" },
+    { id: 27, name: "ถั่วลิสงฝัก", level: 62, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "92.30% 30.2%" },
+    { id: 28, name: "ทานตะวัน", level: 63, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "100% 30.2%" },
+    { id: 29, name: "กะหล่ำปลีม่วง", level: 65, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "0% 60.1%" },
+    { id: 30, name: "มะนาว", level: 66, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "7.69% 60.1%" },
+    { id: 31, name: "หอมใหญ่", level: 68, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "15.38% 60.1%" },
+    { id: 32, name: "แตงกวา", level: 70, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "23.07% 60.1%" },
+    { id: 33, name: "ส้ม", level: 71, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "30.76% 60.1%" },
+    { id: 34, name: "บีทรูท", level: 72, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "38.46% 60.1%" },
+    { id: 35, name: "พริกหยวก", level: 74, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "46.15% 60.1%" },
+    { id: 36, name: "ลูกพีช", level: 76, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "53.84% 60.1%" },
+    { id: 37, name: "ขิง", level: 78, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "61.53% 60.1%" },
+    { id: 38, name: "ใบชา", level: 80, category: "crops", sheet: "crops_sheet.png", size: "1650% auto", pos: "69.23% 60.1%" }
+  ];
 
-  /* 
-    ตัวอย่างโครงสร้าง itemData
-    - category: 'crops' ใช้รูป crop.png | 'bakery' ใช้รูป food.png
-    - col / row: ตำแหน่งคอลัมน์และแถวในไฟล์สไปรท์ (นับจาก 0)
-    - คุณสามารถเพิ่ม/แก้ไขรายการไอเทมใน array นี้ได้เลย
-  */
+  // 2. ขนม / อาหาร Sheet 1 (ครบ 130 ชิ้น)
+  const productsSheet1Items = Array.from({ length: 130 }, (_, index) => {
+    const col = index % 13;
+    const row = Math.floor(index / 13);
+    const posX = (col / 12) * 100;
+    const posY = (row / 9) * 100;
+
+    return {
+      id: 101 + index,
+      name: `สินค้า Sheet1 #${index + 1}`,
+      level: Math.min(1 + Math.floor(index * 0.6), 80),
+      category: "bakery",
+      sheet: "products_sheet_1.png",
+      size: "1300% 1000%",
+      pos: `${posX.toFixed(2)}% ${posY.toFixed(2)}%`
+    };
+  });
+
+  // 3. ขนม / อาหาร Sheet 2 (ครบ 33 ชิ้น)
+  const productsSheet2Items = [
+    { id: 301, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "0.00% 0.00%" },
+    { id: 302, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "8.33% 0.00%" },
+    { id: 303, name: "หมวกปาร์ตี้", level: 70, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "16.66% 0.00%" },
+    { id: 304, name: "แซนด์วิชแฮม", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "25.00% 0.00%" },
+    { id: 305, name: "ผ้าพันคอ", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "33.33% 0.00%" },
+    { id: 306, name: "น้ำส้มสด", level: 71, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "41.66% 0.00%" },
+    { id: 307, name: "สมูทตี้ผลไม้", level: 72, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "50.00% 0.00%" },
+    { id: 308, name: "ชานมร้อน", level: 72, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "58.33% 0.00%" },
+    { id: 309, name: "พายเนื้อ", level: 72, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "66.66% 0.00%" },
+    { id: 310, name: "แพนเค้ก maple", level: 73, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "75.00% 0.00%" },
+    { id: 311, name: "ชาผลไม้ตระกูลเบอร์รี", level: 73, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "83.33% 0.00%" },
+    { id: 312, name: "ซุปผัก", level: 73, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "91.66% 0.00%" },
+    { id: 313, name: "แยมส้ม", level: 74, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "100.00% 0.00%" },
+    { id: 314, name: "พาสต้าซอสมะเขือเทศ", level: 74, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "0.00% 50.00%" },
+    { id: 315, name: "คัพเค้กวนิลา", level: 74, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "8.33% 50.00%" },
+    { id: 316, name: "ชาผลไม้เย็น", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "16.66% 50.00%" },
+    { id: 317, name: "ช็อกโกแลตมูส", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "25.00% 50.00%" },
+    { id: 318, name: "สายไหมพีช", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "33.33% 50.00%" },
+    { id: 319, name: "ฮอตดอกชีส", level: 75, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "41.66% 50.00%" },
+    { id: 320, name: "สลัดผลไม้", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "50.00% 50.00%" },
+    { id: 321, name: "ซุปเห็ด", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "58.33% 50.00%" },
+    { id: 322, name: "โดนัทช็อกโกแลต", level: 76, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "66.66% 50.00%" },
+    { id: 323, name: "เค้กมะพร้าว", level: 77, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "75.00% 50.00%" },
+    { id: 324, name: "ทาโก้เนื้อ", level: 77, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "83.33% 50.00%" },
+    { id: 325, name: "พายมะนาว", level: 77, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "91.66% 50.00%" },
+    { id: 326, name: "ขนมปังกระเทียม", level: 78, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "100.00% 50.00%" },
+    { id: 327, name: "วาฟเฟิลราดซอส", level: 78, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "0.00% 100.00%" },
+    { id: 328, name: "นาโชส์ชีส", level: 78, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "8.33% 100.00%" },
+    { id: 329, name: "ชามะนาวเย็น", level: 79, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "16.66% 100.00%" },
+    { id: 330, name: "คอร์นด็อก", level: 79, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "25.00% 100.00%" },
+    { id: 331, name: "พาสต้าคาโบนาร่า", level: 79, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "33.33% 100.00%" },
+    { id: 332, name: "ชาเขียวมัทฉะ", level: 80, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "41.66% 100.00%" },
+    { id: 333, name: "เค้กรอลไอศกรีม", level: 80, category: "bakery", sheet: "products_sheet_2.png", size: "1300% 300%", pos: "50.00% 100.00%" }
+  ];
+
+  // รวมสินค้าทั้งหมดเป็นอาร์เรย์เดียว
   const itemsData = [
-    // --- หมวดผัก/ผลไม้ (ดึงจาก crop.png) ---
-    { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", col: 0, row: 0 },
-    { id: 2, name: "ข้าวโพด", level: 2, category: "crops", col: 1, row: 0 },
-    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", col: 2, row: 0 },
-    { id: 4, name: "อ้อย", level: 7, category: "crops", col: 3, row: 0 },
-    { id: 5, name: "แครอท", level: 9, category: "crops", col: 0, row: 1 },
-
-    // --- หมวดขนม/อาหาร (ดึงจาก food.png) ---
-    { id: 101, name: "ขนมปัง", level: 2, category: "bakery", col: 0, row: 0 },
-    { id: 102, name: "คุกกี้", level: 10, category: "bakery", col: 1, row: 0 },
-    { id: 103, name: "เค้กสตรอว์เบอร์รี", level: 21, category: "bakery", col: 2, row: 0 },
-    { id: 104, name: "พายแอปเปิ้ล", level: 28, category: "bakery", col: 0, row: 1 }
+    ...cropsData,
+    ...productsSheet1Items,
+    ...productsSheet2Items
   ];
 
   let cart = {}; 
   let currentCategory = 'crops';
   let activeItemId = null;
-
-  // ฟังก์ชันช่วยคำนวณ Inline Style สำหรับ Sprite Image
-  function getSpriteStyle(item) {
-    const imageFile = item.category === 'crops' ? 'crop.png' : 'food.png';
-    const bgPosX = -(item.col * ICON_SIZE);
-    const bgPosY = -(item.row * ICON_SIZE);
-    return `background-image: url('${imageFile}'); background-position: ${bgPosX}px ${bgPosY}px;`;
-  }
 
   function calculateCropPrice(qty) {
     const hundreds = Math.floor(qty / 100);
@@ -225,7 +295,7 @@
 
       row.innerHTML = `
         <div class="item-left">
-          <div class="sprite-icon" style="${getSpriteStyle(item)}"></div>
+          <div class="sprite-icon" style="background-image: url('${item.sheet}'); background-size: ${item.size}; background-position: ${item.pos};"></div>
           <div class="item-info">
             <span class="item-badge">Lv. ${item.level}</span>
             <span class="item-name">${item.name}</span>
@@ -302,6 +372,7 @@
       return alert('กรุณาเลือกอย่างน้อย 1 รายการก่อนส่งออเดอร์ครับ');
     }
 
+    // สร้าง HTML แสดงรายการสรุปใน Modal ยืนยัน
     const summaryBox = document.getElementById('orderSummaryBox');
     let summaryHTML = '';
     let totalPrice = 0;
@@ -340,9 +411,8 @@
     const tagInput = document.getElementById('finalPlayerTag');
     const tag = tagInput.value.trim();
 
-    // บังคับกรอก Tag ก่อนกดยืนยัน
     if (!tag) {
-      return alert('กรุณากรอก Tag หรือชื่อในเกมก่อนยืนยันสั่งซื้อครับ');
+      return alert('กรุณากรอก Tag หรือชื่อในเกมด้วยครับ');
     }
 
     let selectedList = [];
@@ -360,7 +430,7 @@
 
     const userLv = document.getElementById('userLevel').value;
     const orderData = {
-      orderId: '#ORD-' + Math.floor(1000 + Math.random() * 9000),
+      orderId: '#CROP-' + Math.floor(1000 + Math.random() * 9000),
       tag: `${tag} ${userLv ? '(Lv.' + userLv + ')' : ''}`,
       items: selectedList.join('\n'),
       total: totalPrice.toFixed(2)
@@ -384,7 +454,6 @@
     });
   }
 
-  // โหลดรายการแรกเริ่ม
   renderItems();
 </script>
 </body>
