@@ -85,9 +85,14 @@
       <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อสินค้า..." oninput="renderItems()">
       <input type="number" id="userLevel" class="level-input" placeholder="🎯 เลเวล" oninput="renderItems()">
     </div>
+    
+    <!-- ปุ่มเลือกหมวดหมู่ทั้งหมด -->
     <div class="category-tabs">
       <button class="tab-btn active" onclick="switchCategory('crops', this)">🌱 ผัก / ผลไม้</button>
       <button class="tab-btn" onclick="switchCategory('bakery', this)">🍿 ขนม / อาหาร</button>
+      <button class="tab-btn" onclick="switchCategory('demolition', this)">💣 ของทำลายล้าง</button>
+      <button class="tab-btn" onclick="switchCategory('low_raw', this)">🌾 วัตถุดิบเวลต่ำ</button>
+      <button class="tab-btn" onclick="switchCategory('animal_feed', this)">🐔 อาหารสัตว์</button>
     </div>
   </div>
 
@@ -170,14 +175,26 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
+  // รายการสินค้าตัวอย่าง (สามารถเพิ่มสินค้าเพิ่มตามหมวดหมู่ได้เลย)
   const itemsData = [
+    // --- ผัก / ผลไม้ (category: "crops") ---
     { id: 1, name: "ข้าวสาลี", level: 1, category: "crops", img: "images/item1.webp" },
     { id: 2, name: "ข้าวโพด", level: 2, category: "crops", img: "images/item2.webp" },
-    { id: 3, name: "ถั่วเหลือง", level: 5, category: "crops", img: "images/item3.webp" },
-    { id: 4, name: "อ้อย", level: 7, category: "crops", img: "images/item4.webp" },
+
+    // --- ขนม / อาหาร (category: "bakery") ---
     { id: 101, name: "สตรอว์เบอร์รีมิลค์เชค", level: 70, category: "bakery", img: "images/item39.webp" },
-    { id: 102, name: "น้ำผลไม้เขียว", level: 70, category: "bakery", img: "images/item40.webp" },
-    { id: 103, name: "หมวกปาร์ตี้", level: 70, category: "bakery", img: "images/item41.webp" }
+
+    // --- ของทำลายล้าง (category: "demolition") ---
+    { id: 201, name: "ระเบิดขวด (Dynamite)", level: 1, category: "demolition", img: "images/item42.webp" },
+    { id: 202, name: "ขวาน", level: 1, category: "demolition", img: "images/item43.webp" },
+
+    // --- วัตถุดิบเวลต่ำ (category: "low_raw") ---
+    { id: 301, name: "นมสด", level: 6, category: "low_raw", img: "images/item44.webp" },
+    { id: 302, name: "ไข่ไก่", level: 1, category: "low_raw", img: "images/item45.webp" },
+
+    // --- อาหารสัตว์ (category: "animal_feed") ---
+    { id: 401, name: "อาหารไก่", level: 1, category: "animal_feed", img: "images/item46.webp" },
+    { id: 402, name: "อาหารวัว", level: 6, category: "animal_feed", img: "images/item47.webp" }
   ];
 
   let cart = {}; 
@@ -185,11 +202,42 @@
   let activeItemId = null;
   let currentOrderId = '';
 
-  function calculateCropPrice(qty) {
-    const hundreds = Math.floor(qty / 100);
-    const remainder = qty % 100;
-    const tens = Math.ceil(remainder / 10);
-    return (hundreds * 7) + (tens * 1);
+  // ฟังก์ชันคำนวณราคาตามหมวดหมู่
+  function calculateItemPrice(item, qty) {
+    // 1. ผัก / ผลไม้ (10/1, 100/7)
+    if (item.category === 'crops') {
+      const hundreds = Math.floor(qty / 100);
+      const remainder = qty % 100;
+      const tens = Math.ceil(remainder / 10);
+      return (hundreds * 7) + (tens * 1);
+    } 
+    
+    // 2. ขนม / อาหาร (10/2, 100/12, 200/20, 300/30)
+    else if (item.category === 'bakery') {
+      if (qty >= 300) {
+        const hundreds = Math.floor(qty / 100);
+        const remainder = qty % 100;
+        return (hundreds * 10) + (Math.ceil(remainder / 10) * 0.2);
+      } else if (qty >= 200) {
+        const remainder = qty - 200;
+        return 20 + (Math.ceil(remainder / 10) * 0.2);
+      } else if (qty >= 100) {
+        const remainder = qty - 100;
+        return 12 + (Math.ceil(remainder / 10) * 0.2);
+      } else {
+        return Math.ceil(qty / 10) * 0.2;
+      }
+    }
+
+    // 3. ของทำลายล้าง / วัตถุดิบเวลต่ำ / อาหารสัตว์ (ราคาเท่ากัน: 10/1, 100/5)
+    else if (['demolition', 'low_raw', 'animal_feed'].includes(item.category)) {
+      const hundreds = Math.floor(qty / 100);
+      const remainder = qty % 100;
+      const tens = Math.ceil(remainder / 10);
+      return (hundreds * 5) + (tens * 1);
+    }
+
+    return 0;
   }
 
   function renderItems() {
@@ -283,9 +331,12 @@
     let totalCount = 0;
     let totalPrice = 0;
     Object.keys(cart).forEach(id => {
-      const qty = cart[id];
-      totalCount += qty;
-      totalPrice += calculateCropPrice(qty);
+      const item = itemsData.find(i => i.id == id);
+      if (item) {
+        const qty = cart[id];
+        totalCount += qty;
+        totalPrice += calculateItemPrice(item, qty);
+      }
     });
     document.getElementById('totalQtyText').innerText = `เลือกไว้ ${totalCount} ชิ้น`;
     document.getElementById('totalPriceText').innerText = `${totalPrice.toFixed(2)} บาท`;
@@ -304,7 +355,7 @@
       const item = itemsData.find(i => i.id == id);
       if (item) {
         const qty = cart[id];
-        const itemPrice = calculateCropPrice(qty);
+        const itemPrice = calculateItemPrice(item, qty);
         totalPrice += itemPrice;
         summaryHTML += `
           <div class="summary-item">
@@ -353,8 +404,8 @@
       const item = itemsData.find(i => i.id == id);
       if (item) {
         const qty = cart[id];
-        const itemPrice = calculateCropPrice(qty);
-        selectedList.push(`${item.name} x${qty} (${itemPrice}฿)`);
+        const itemPrice = calculateItemPrice(item, qty);
+        selectedList.push(`${item.name} x${qty} (${itemPrice.toFixed(2)}฿)`);
         totalPrice += itemPrice;
       }
     });
@@ -375,17 +426,14 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     }).then(() => {
-      // 1. ตั้งเวลาดีเลย์ 3 วินาที (3000ms) ก่อนปิด Modal สรุปและแสดงผลลัพธ์
       setTimeout(() => {
         closeConfirmModal();
 
-        // แสดงหน้าต่างผลลัพธ์เลขออเดอร์
         document.getElementById('displayOrderId').innerText = currentOrderId;
         document.getElementById('successOrderModal').style.display = 'flex';
 
-        // 2. เคลียร์ตะกร้า และลบแท็กออกทันที
         cart = {};
-        tagInput.value = ''; // ลบแท็กออก
+        tagInput.value = '';
 
         submitBtn.innerText = 'ยืนยันสั่งซื้อ';
         submitBtn.disabled = false;
@@ -402,7 +450,6 @@
     });
   }
 
-  // ฟังก์ชันสำหรับกดปุ่มคัดลอกเลขออเดอร์
   function copyOrderId() {
     navigator.clipboard.writeText(currentOrderId).then(() => {
       const btn = document.getElementById('btnCopyOrder');
