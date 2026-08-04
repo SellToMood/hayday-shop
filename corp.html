@@ -217,15 +217,15 @@
       if (qty >= 300) {
         const hundreds = Math.floor(qty / 100);
         const remainder = qty % 100;
-        return (hundreds * 10) + (Math.ceil(remainder / 10) * 0.2);
+        return (hundreds * 10) + (Math.ceil(remainder / 10) * 2);
       } else if (qty >= 200) {
         const remainder = qty - 200;
-        return 20 + (Math.ceil(remainder / 10) * 0.2);
+        return 20 + (Math.ceil(remainder / 10) * 2);
       } else if (qty >= 100) {
         const remainder = qty - 100;
-        return 12 + (Math.ceil(remainder / 10) * 0.2);
+        return 12 + (Math.ceil(remainder / 10) * 2);
       } else {
-        return Math.ceil(qty / 10) * 0.2;
+        return Math.ceil(qty / 10) * 2;
       }
     }
 
