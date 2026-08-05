@@ -176,34 +176,34 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgp3FtmPRryzLiKuGqL61Pwlf27Xf7QugR5qv7SltoPo5I5RjojXmHu6AHyMa3EMpI/exec';
 
   const itemsData = [
-  // --- ผัก / พืชไร่ / ผลไม้ (category: "crops") ---
-  { id: 1, name: "ข้าวสาลี (Wheat)", level: 1, category: "crops", img: "images/item1.webp" },
-  { id: 2, name: "ข้าวโพด (Corn)", level: 2, category: "crops", img: "images/item2.webp" },
-  { id: 3, name: "ถั่วเหลือง (Soybean)", level: 5, category: "crops", img: "images/item3.webp" },
-  { id: 4, name: "อ้อย (Sugarcane)", level: 7, category: "crops", img: "images/item4.webp" },
-  { id: 5, name: "แครอท (Carrot)", level: 9, category: "crops", img: "images/item5.webp" },
-  { id: 6, name: "ลาเวนเดอร์/คราม (Indigo)", level: 13, category: "crops", img: "images/item6.webp" },
-  { id: 7, name: "แอปเปิล (Apple)", level: 15, category: "crops", img: "images/item7.webp" },
-  { id: 8, name: "ฟักทอง (Pumpkin)", level: 15, category: "crops", img: "images/item8.webp" },
-  { id: 9, name: "ฝ้าย (Cotton)", level: 18, category: "crops", img: "images/item9.webp" },
-  { id: 10, name: "ราสเบอร์รี (Raspberry)", level: 19, category: "crops", img: "images/item10.webp" },
-  
-  // --- อาหาร / ขนม (category: "bakery") ---
-  { id: 101, name: "ขนมปัง (Bread)", level: 2, category: "bakery", img: "images/item101.webp" },
-  { id: 102, name: "ครีม (Cream)", level: 6, category: "bakery", img: "images/item102.webp" },
-  { id: 103, name: "ขนมปังข้าวโพด (Cornbread)", level: 7, category: "bakery", img: "images/item103.webp" },
+    // --- ผัก / พืชไร่ / ผลไม้ (category: "crops") ---
+    { id: 1, name: "ข้าวสาลี (Wheat)", level: 1, category: "crops", img: "images/item1.webp" },
+    { id: 2, name: "ข้าวโพด (Corn)", level: 2, category: "crops", img: "images/item2.webp" },
+    { id: 3, name: "ถั่วเหลือง (Soybean)", level: 5, category: "crops", img: "images/item3.webp" },
+    { id: 4, name: "อ้อย (Sugarcane)", level: 7, category: "crops", img: "images/item4.webp" },
+    { id: 5, name: "แครอท (Carrot)", level: 9, category: "crops", img: "images/item5.webp" },
+    { id: 6, name: "ลาเวนเดอร์/คราม (Indigo)", level: 13, category: "crops", img: "images/item6.webp" },
+    { id: 7, name: "แอปเปิล (Apple)", level: 15, category: "crops", img: "images/item7.webp" },
+    { id: 8, name: "ฟักทอง (Pumpkin)", level: 15, category: "crops", img: "images/item8.webp" },
+    { id: 9, name: "ฝ้าย (Cotton)", level: 18, category: "crops", img: "images/item9.webp" },
+    { id: 10, name: "ราสเบอร์รี (Raspberry)", level: 19, category: "crops", img: "images/item10.webp" },
+    
+    // --- อาหาร / ขนม (category: "bakery") ---
+    { id: 101, name: "ขนมปัง (Bread)", level: 2, category: "bakery", img: "images/item101.webp" },
+    { id: 102, name: "ครีม (Cream)", level: 6, category: "bakery", img: "images/item102.webp" },
+    { id: 103, name: "ขนมปังข้าวโพด (Cornbread)", level: 7, category: "bakery", img: "images/item103.webp" },
 
-  // --- ของทำลายล้าง (category: "demolition") ---
-  { id: 501, name: "ขวาน (Ax)", level: 1, category: "demolition", img: "images/item501.webp" },
-  { id: 502, name: "เลื่อย (Saw)", level: 5, category: "demolition", img: "images/item502.webp" },
+    // --- ของทำลายล้าง (category: "demolition") ---
+    { id: 501, name: "ขวาน (Ax)", level: 1, category: "demolition", img: "images/item501.webp" },
+    { id: 502, name: "เลื่อย (Saw)", level: 5, category: "demolition", img: "images/item502.webp" },
 
-  // --- วัตถุดิบดิบขั้นต่ำ (category: "low_raw") ---
-  { id: 301, name: "ไข่ไก่ (Egg)", level: 1, category: "low_raw", img: "images/item301.webp" },
-  { id: 302, name: "นมสด (Milk)", level: 6, category: "low_raw", img: "images/item302.webp" },
+    // --- วัตถุดิบดิบขั้นต่ำ (category: "low_raw") ---
+    { id: 301, name: "ไข่ไก่ (Egg)", level: 1, category: "low_raw", img: "images/item301.webp" },
+    { id: 302, name: "นมสด (Milk)", level: 6, category: "low_raw", img: "images/item302.webp" },
 
-  // --- อาหารสัตว์ (category: "animal_feed") ---
-  { id: 401, name: "อาหารไก่ (Chicken Feed)", level: 1, category: "animal_feed", img: "images/item401.webp" },
-  { id: 402, name: "อาหารวัว (Cow Feed)", level: 6, category: "animal_feed", img: "images/item402.webp" }
+    // --- อาหารสัตว์ (category: "animal_feed") ---
+    { id: 401, name: "อาหารไก่ (Chicken Feed)", level: 1, category: "animal_feed", img: "images/item401.webp" },
+    { id: 402, name: "อาหารวัว (Cow Feed)", level: 6, category: "animal_feed", img: "images/item402.webp" }
   ];
 
   let cart = {}; 
@@ -211,7 +211,6 @@
   let activeItemId = null;
   let currentOrderId = '';
 
-  // เพิ่มฟังก์ชันคำนวณราคาที่ขาดหายไป
   function calculateItemPrice(item, qty) {
     if (!item) return 0;
     if (item.category === 'crops') {
@@ -250,12 +249,15 @@
     list.innerHTML = '';
 
     const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-    const userLv = document.getElementById('userLevel').value ? parseInt(document.getElementById('userLevel').value) : Infinity;
+    
+    // แก้ไขการดึงค่าเลเวล ป้องกันสินค้าหายเวลากรอกเลเวลว่างเปล่า
+    const userLvInput = document.getElementById('userLevel') ? document.getElementById('userLevel').value.trim() : '';
+    const userLv = userLvInput !== '' ? parseInt(userLvInput, 10) : 999;
 
     const filtered = itemsData.filter(i => {
       const matchCat = i.category === currentCategory;
       const matchSearch = i.name.toLowerCase().includes(searchText);
-      const matchLv = i.level <= userLv;
+      const matchLv = (isNaN(userLv) ? true : i.level <= userLv);
       return matchCat && matchSearch && matchLv;
     });
 
@@ -270,7 +272,6 @@
       row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
       row.onclick = () => openModal(item);
 
-      // ใช้ onerror ซ่อนรูปถ้าไม่มีไฟล์รูปภาพอยู่ในโฟลเดอร์
       row.innerHTML = `
         <div class="item-left">
           <img src="${item.img}" class="sprite-icon" alt="${item.name}" onerror="this.style.display='none'">
@@ -432,22 +433,20 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     }).then(() => {
-      setTimeout(() => {
-        closeConfirmModal();
+      // แสดงผลทันทีโดยไม่ต้องตั้งเวลารอ 3 วินาที
+      closeConfirmModal();
 
-        document.getElementById('displayOrderId').innerText = currentOrderId;
-        document.getElementById('successOrderModal').style.display = 'flex';
+      document.getElementById('displayOrderId').innerText = currentOrderId;
+      document.getElementById('successOrderModal').style.display = 'flex';
 
-        cart = {};
-        tagInput.value = '';
+      cart = {};
+      tagInput.value = '';
 
-        submitBtn.innerText = 'ยืนยันสั่งซื้อ';
-        submitBtn.disabled = false;
+      submitBtn.innerText = 'ยืนยันสั่งซื้อ';
+      submitBtn.disabled = false;
 
-        renderItems();
-        updateCartSummary();
-      }, 3000);
-
+      renderItems();
+      updateCartSummary();
     }).catch(err => {
       alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
       console.error(err);
@@ -471,7 +470,6 @@
     });
   }
 
-  // เรียกใช้เพื่อให้สินค้าโหลดตอนเปิดหน้าเว็บครั้งแรก
   document.addEventListener("DOMContentLoaded", function() {
     renderItems();
   });
