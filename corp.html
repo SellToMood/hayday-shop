@@ -700,13 +700,15 @@
       setTimeout(() => {
         btn.innerText = '📋 คัดลอกเลขออเดอร์';
         btn.style.background = '#0284c7';
-      }, 2000);
+      }, 1000);
     }).catch(err => {
       alert('ไม่สามารถคัดลอกได้อัตโนมัติ: ' + currentOrderId);
     });
   }
 
+  document.addEventListener("DOMContentLoaded", function() {
   renderItems();
+});
 </script>
 </body>
 </html>
