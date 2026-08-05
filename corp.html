@@ -449,41 +449,37 @@
 
   // ฟังก์ชันคำนวณราคาตามหมวดหมู่
   function calculateItemPrice(item, qty) {
-    // 1. ผัก / ผลไม้ (10/1, 100/7)
-    if (item.category === 'crops') {
+  if (!item) return 0;
+  if (item.category === 'crops') {
+    const hundreds = Math.floor(qty / 100);
+    const remainder = qty % 100;
+    const tens = Math.ceil(remainder / 10);
+    return (hundreds * 7) + (tens * 1);
+  } 
+  else if (item.category === 'bakery') {
+    if (qty >= 300) {
       const hundreds = Math.floor(qty / 100);
       const remainder = qty % 100;
-      const tens = Math.ceil(remainder / 10);
-      return (hundreds * 7) + (tens * 1);
-    } 
-    
-    // 2. ขนม / อาหาร (10/2, 100/12, 200/20, 300/30)
-    else if (item.category === 'bakery') {
-      if (qty >= 300) {
-        const hundreds = Math.floor(qty / 100);
-        const remainder = qty % 100;
-        return (hundreds * 10) + (Math.ceil(remainder / 10) * 2);
-      } else if (qty >= 200) {
-        const remainder = qty - 200;
-        return 20 + (Math.ceil(remainder / 10) * 2);
-      } else if (qty >= 100) {
-        const remainder = qty - 100;
-        return 12 + (Math.ceil(remainder / 10) * 2);
-      } else {
-        return Math.ceil(qty / 10) * 2;
-      }
+      return (hundreds * 10) + (Math.ceil(remainder / 10) * 2);
+    } else if (qty >= 200) {
+      const remainder = qty - 200;
+      return 20 + (Math.ceil(remainder / 10) * 2);
+    } else if (qty >= 100) {
+      const remainder = qty - 100;
+      return 12 + (Math.ceil(remainder / 10) * 2);
+    } else {
+      return Math.ceil(qty / 10) * 2;
     }
-
-    // 3. ของทำลายล้าง / วัตถุดิบเวลต่ำ / อาหารสัตว์ (ราคาเท่ากัน: 10/1, 100/5)
-    else if (['demolition', 'low_raw', 'animal_feed'].includes(item.category)) {
-      const hundreds = Math.floor(qty / 100);
-      const remainder = qty % 100;
-      const tens = Math.ceil(remainder / 10);
-      return (hundreds * 5) + (tens * 1);
-    }
-
-    return 0;
   }
+  else if (['demolition', 'low_raw', 'animal_feed'].includes(item.category)) {
+    const hundreds = Math.floor(qty / 100);
+    const remainder = qty % 100;
+    const tens = Math.ceil(remainder / 10);
+    return (hundreds * 5) + (tens * 1);
+  }
+  return 0;
+}
+
 
   function renderItems() {
     const list = document.getElementById('itemList');
