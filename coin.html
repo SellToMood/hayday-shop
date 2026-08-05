@@ -40,8 +40,8 @@
   <h2>🪙 สั่งซื้อเหรียญ (Coins)</h2>
 
   <div class="form-group">
-    <label>1. กรอกเลเวลของคุณ</label>
-    <input type="number" id="playerLevel" placeholder="เช่น 25" min="1" oninput="onLevelChange()">
+    <label>1. กรอกเลเวลของคุณ (รับขั้นต่ำ Lv.11)</label>
+    <input type="number" id="playerLevel" placeholder="เช่น 25" min="11" oninput="onLevelChange()">
   </div>
 
   <div class="form-group">
@@ -70,7 +70,7 @@
   <button class="btn-submit" onclick="submitOrder()">ส่งออเดอร์</button>
 </div>
 
-<!-- Modal: สั่งซื้อสำเร็จ + คัดลอกเลขออเดอร์ -->
+<!-- Modal: สั่งซื้อสำเร็จ -->
 <div class="modal-overlay" id="successOrderModal">
   <div class="modal-content">
     <h3 style="margin:0; color:#16a34a;">🎉 สั่งซื้อสำเร็จ!</h3>
@@ -92,51 +92,60 @@
 
   // ฟังก์ชันคำนวณราคาเหรียญตามเลเวล
   function calculateCoinPrice(level, amount) {
-    if (!level || !amount || amount < 100000) return 0;
+    if (!level || level < 11 || !amount || amount < 100000) return 0;
 
     let price = 0;
 
     // --- ช่วงเลเวล 40+ ---
     if (level >= 40) {
       let remaining = amount;
+
+      // 10 ล้าน = 240 บาท
+      const millions10 = Math.floor(remaining / 10000000);
+      price += millions10 * 240;
+      remaining %= 10000000;
+
+      // 5 ล้าน = 120 บาท
       const millions5 = Math.floor(remaining / 5000000);
       price += millions5 * 120;
       remaining %= 5000000;
 
+      // 3 ล้าน = 75 บาท
+      const millions3 = Math.floor(remaining / 3000000);
+      price += millions3 * 75;
+      remaining %= 3000000;
+
+      // 1 ล้าน = 25 บาท
       const millions1 = Math.floor(remaining / 1000000);
       price += millions1 * 25;
       remaining %= 1000000;
 
+      // 5 แสน = 15 บาท
       const lakhs5 = Math.floor(remaining / 500000);
-      price += lakhs5 * 20;
+      price += lakhs5 * 15;
+      remaining %= 500000;
+
+      // 1 แสน = 6 บาท
+      const lakhs1 = Math.floor(remaining / 100000);
+      price += lakhs1 * 6;
+    }
+    // --- ช่วงเลเวล 25-39 ---
+    else if (level >= 25 && level <= 39) {
+      let remaining = amount;
+
+      const lakhs5 = Math.floor(remaining / 500000);
+      price += lakhs5 * 25;
       remaining %= 500000;
 
       const lakhs1 = Math.floor(remaining / 100000);
       price += lakhs1 * 7;
     }
-    // --- ช่วงเลเวล 25-39 ---
-    else if (level >= 25 && level <= 39) {
+    // --- ช่วงเลเวล 11-24 ---
+    else if (level >= 11 && level <= 24) {
       let remaining = amount;
-      const millions1 = Math.floor(remaining / 1000000);
-      price += millions1 * 50;
-      remaining %= 1000000;
-
-      const lakhs5 = Math.floor(remaining / 500000);
-      price += lakhs5 * 30;
-      remaining %= 500000;
 
       const lakhs1 = Math.floor(remaining / 100000);
-      price += lakhs1 * 8;
-    }
-    // --- ช่วงเลเวล 1-24 ---
-    else if (level >= 1 && level <= 24) {
-      let remaining = amount;
-      const millions1 = Math.floor(remaining / 1000000);
-      price += millions1 * 80;
-      remaining %= 1000000;
-
-      const lakhs1 = Math.floor(remaining / 100000);
-      price += lakhs1 * 10;
+      price += lakhs1 * 9;
     }
 
     return price;
@@ -146,9 +155,15 @@
     const level = parseInt(document.getElementById('playerLevel').value) || 0;
     const amount = parseInt(document.getElementById('coinAmount').value) || 0;
 
-    // ตรวจสอบลิมิตเลเวล
-    if (level >= 1 && level <= 24 && amount > 1000000) {
-      alert('เลเวล 1-24 เติมได้สูงสุด 1,000,000 เหรียญ (1 ล้าน) ครับ');
+    // ตรวจสอบลิมิตเลเวลต่ำสุด
+    if (level > 0 && level < 11) {
+      document.getElementById('totalPrice').innerText = 'รับเฉพาะเลเวล 11 ขึ้นไปครับ';
+      return;
+    }
+
+    // ตรวจสอบลิมิตจำนวนเหรียญสูงสุดตามเลเวล
+    if (level >= 11 && level <= 24 && amount > 1000000) {
+      alert('เลเวล 11-24 เติมได้สูงสุด 1,000,000 เหรียญ (1 ล้าน) ครับ');
       document.getElementById('coinAmount').value = 1000000;
       return updatePriceDisplay();
     } else if (level >= 25 && amount > 10000000) {
@@ -165,7 +180,7 @@
     const level = parseInt(document.getElementById('playerLevel').value) || 0;
     
     // ล็อก/ปลดล็อก ปุ่ม preset ตามระดับเลเวล
-    const isLowLevel = level >= 1 && level <= 24;
+    const isLowLevel = level >= 11 && level <= 24;
     document.getElementById('btn3m').disabled = isLowLevel;
     document.getElementById('btn5m').disabled = isLowLevel;
     document.getElementById('btn10m').disabled = isLowLevel;
@@ -191,8 +206,8 @@
     const tagInput = document.getElementById('playerTag');
     const tag = tagInput.value.trim();
 
-    if (!level || level < 1) {
-      return alert('กรุณากรอกเลเวลให้ถูกต้องด้วยครับ');
+    if (!level || level < 11) {
+      return alert('รับเฉพาะผู้เล่นเลเวล 11 ขึ้นไปเท่านั้นครับ');
     }
     if (!amount || amount < 100000 || amount % 100000 !== 0) {
       return alert('กรุณาเลือกหรือระบุจำนวนเหรียญให้ถูกต้อง (รับขั้นต่ำ 100,000 และเป็นหลักแสนเท่านั้น)');
