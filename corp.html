@@ -482,47 +482,52 @@
 
 
   function renderItems() {
-    const list = document.getElementById('itemList');
-    list.innerHTML = '';
+  const list = document.getElementById('itemList');
+  if (!list) return; // กัน Error กรณีหา element ไม่เจอ
+  list.innerHTML = '';
 
-    const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-    const userLv = document.getElementById('userLevel').value ? parseInt(document.getElementById('userLevel').value) : Infinity;
+  const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+  
+  // แก้ปัญหาการเช็กค่าว่าง: ถ้ายังไม่กรอกเลเวล ให้ใช้ค่า 999 แทน Infinity เพื่อความเสถียร
+  const userLvInput = document.getElementById('userLevel') ? document.getElementById('userLevel').value.trim() : '';
+  const userLv = userLvInput !== '' ? parseInt(userLvInput, 10) : 999;
 
-    const filtered = itemsData.filter(i => {
-      const matchCat = i.category === currentCategory;
-      const matchSearch = i.name.toLowerCase().includes(searchText);
-      const matchLv = i.level <= userLv;
-      return matchCat && matchSearch && matchLv;
-    });
+  const filtered = itemsData.filter(i => {
+    const matchCat = i.category === currentCategory;
+    const matchSearch = i.name.toLowerCase().includes(searchText);
+    const matchLv = (isNaN(userLv) ? true : i.level <= userLv);
+    return matchCat && matchSearch && matchLv;
+  });
 
-    if (filtered.length === 0) {
-      list.innerHTML = `<div style="text-align:center; padding: 40px; color:#94a3b8;">ไม่พบรายการ</div>`;
-      return;
-    }
-
-    filtered.forEach(item => {
-      const selectedQty = cart[item.id] || 0;
-      const row = document.createElement('div');
-      row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
-      row.onclick = () => openModal(item);
-
-      row.innerHTML = `
-        <div class="item-left">
-          <img src="${item.img}" class="sprite-icon" alt="${item.name}">
-          <div class="item-info">
-            <span class="item-badge">Lv. ${item.level}</span>
-            <span class="item-name">${item.name}</span>
-          </div>
-        </div>
-        <div class="item-right">
-          ${selectedQty > 0 
-            ? `<div class="item-qty-status">${selectedQty} ชิ้น</div>` 
-            : `<div class="item-action-text">+ เลือกจำนวน</div>`}
-        </div>
-      `;
-      list.appendChild(row);
-    });
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="text-align:center; padding: 40px; color:#94a3b8;">ไม่พบรายการ</div>`;
+    return;
   }
+
+  filtered.forEach(item => {
+    const selectedQty = cart[item.id] || 0;
+    const row = document.createElement('div');
+    row.className = `item-row ${selectedQty > 0 ? 'selected' : ''}`;
+    row.onclick = () => openModal(item);
+
+    row.innerHTML = `
+      <div class="item-left">
+        <img src="${item.img}" class="sprite-icon" alt="${item.name}">
+        <div class="item-info">
+          <span class="item-badge">Lv. ${item.level}</span>
+          <span class="item-name">${item.name}</span>
+        </div>
+      </div>
+      <div class="item-right">
+        ${selectedQty > 0 
+          ? `<div class="item-qty-status">${selectedQty} ชิ้น</div>` 
+          : `<div class="item-action-text">+ เลือกจำนวน</div>`}
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
 
   function switchCategory(cat, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
